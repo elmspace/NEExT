@@ -14,5 +14,5 @@ setuptools.setup(
 	url='https://github.com/elmspace/ugaf/tree/master',
 	license='BSD-2',
 	packages=['ugaf'],
-	install_requires=["pandas==2.0.3", "arrow==1.2.3", "tqdm==4.65.0"]
+	install_requires=["pandas==2.0.3", "arrow==1.2.3", "tqdm==4.65.0", "scikit-learn==1.3.0"]
 )
