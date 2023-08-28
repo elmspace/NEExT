@@ -1,2 +1,2 @@
-# ugaf
+# UGAF
 Unsupervised Graph Analysis Framework
