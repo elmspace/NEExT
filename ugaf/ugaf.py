@@ -32,9 +32,12 @@ class UGAF:
 		self.load_data()
 		self.sample_graphs()
 		self.build_similarity_matrix()
-		self.compute_wasserstein_distance()
-		self.compute_similatity_matrix_eigen_values()
-		self.compute_similarity_matrix_distribution_properties()
+		if self.config["compute_wasserstein_distance"]:
+			self.compute_wasserstein_distance()
+		if self.config["compute_similatity_matrix_eigen_values"]:
+			self.compute_similatity_matrix_eigen_values()
+		if self.config["compute_similarity_matrix_distribution_properties"]:
+			self.compute_similarity_matrix_distribution_properties()
 
 
 	def load_data(self):
