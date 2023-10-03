@@ -2,15 +2,11 @@ from ugaf.ugaf import UGAF
 
 
 config = {}
-config["g1_path"] = "/Users/ash/Desktop/development/research/testing/ugaf/data/basic_random_graphs/lsme/g_0.csv"
-config["g2_path"] = "/Users/ash/Desktop/development/research/testing/ugaf/data/basic_random_graphs/lsme/g_0.csv"
-config["compute_wasserstein_distance"] = True
-config["compute_similatity_matrix_eigen_values"] = True
-config["compute_similarity_matrix_distribution_properties"] = True
-
-config["sample_rate"] = 1.0
-config["ensemble_size"] = 1
+config["directed_graphs"] = "no"
+config["edge_file"] = "/Users/ash/Desktop/development/research/sandbox/ugaf/bzr_dataset/clean_dataset/edge_file.csv"
+config["node_to_graph_mapping"] = "/Users/ash/Desktop/development/research/sandbox/ugaf/bzr_dataset/clean_dataset/node_to_graph_mapping.csv"
 
 
-obj = UGAF(config)
-obj.run()
+
+ugaf = UGAF()
+ugaf.build_graph_collection(config)

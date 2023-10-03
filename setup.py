@@ -20,5 +20,6 @@ setuptools.setup(
 	"scikit-learn==1.3.0",
 	"matplotlib==3.7.2",
 	"scipy==1.11.2",
-	"tensorflow==2.13.0"]
+	"tensorflow==2.13.0",
+	"networkx==3.1"]
 )
