@@ -1,12 +1,13 @@
 from ugaf.ugaf import UGAF
 
 
-config = {}
-config["directed_graphs"] = "no"
-config["edge_file"] = "/Users/ash/Desktop/development/research/sandbox/ugaf/bzr_dataset/clean_dataset/edge_file.csv"
-config["node_to_graph_mapping"] = "/Users/ash/Desktop/development/research/sandbox/ugaf/bzr_dataset/clean_dataset/node_to_graph_mapping.csv"
-
-
+base_dir = "/home/ash/Desktop/development/research/graph_sandbox/ugaf/bzr_dataset/clean_dataset/"
 
 ugaf = UGAF()
-ugaf.build_graph_collection(config)
+
+
+edge_csv_path = base_dir + "edge_file.csv"
+node_graph_map_csv_path = base_dir + "node_graph_mapping_file.csv"
+
+ugaf.build_graph_collection(edge_csv_path, node_graph_map_csv_path)
+ugaf.filter_for_largest_cc()

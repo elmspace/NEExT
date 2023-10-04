@@ -21,5 +21,6 @@ setuptools.setup(
 	"matplotlib==3.7.2",
 	"scipy==1.11.2",
 	"tensorflow==2.13.0",
-	"networkx==3.1"]
+	"networkx==3.1",
+	"loguru==0.7.2"]
 )
