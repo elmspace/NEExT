@@ -22,5 +22,6 @@ setuptools.setup(
 	"scipy==1.11.2",
 	"tensorflow==2.13.0",
 	"networkx==3.1",
-	"loguru==0.7.2"]
+	"loguru==0.7.2",
+	"node2vec==0.4.6"]
 )
