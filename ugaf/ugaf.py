@@ -36,10 +36,14 @@ class UGAF:
 		# Check if graph collection object was built
 		if not self.graph_c.gc_status:
 			logger.error("You need to build a graph collection first.")
-		
+		# Run embedding calculation
 		logger.info("Running %s embedding" % (embedding_type))
 		for g_obj in tqdm(self.graph_c.graph_collection, desc="Building embeddings"):
 			G = g_obj["graph"]
 			embeddings = self.emb_eng.run_embedding(G, embedding_type)
 			g_obj["embedding"] = {}
 			g_obj["embedding"][embedding_type] = embeddings
+
+
+	def build_graph_embedding(self):
+		pass

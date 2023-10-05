@@ -14,14 +14,17 @@ setuptools.setup(
 	url='https://github.com/elmspace/ugaf/tree/master',
 	license='BSD-2',
 	packages=['ugaf'],
-	install_requires=["pandas==2.0.3",
+	install_requires=[
+	"pandas==2.0.3",
 	"arrow==1.2.3",
 	"tqdm==4.65.0",
 	"scikit-learn==1.3.0",
 	"matplotlib==3.7.2",
 	"scipy==1.11.2",
-	"tensorflow==2.13.0",
-	"networkx==3.1",
+	"numpy==1.25.2",
+	"networkx==2.8.8",
+	"node2vec==0.4.6",
 	"loguru==0.7.2",
-	"node2vec==0.4.6"]
+	"vectorizers==0.2",
+	"scipy==1.11.2"]
 )
