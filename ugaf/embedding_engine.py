@@ -34,7 +34,7 @@ class Embedding_Engine:
 			This method takes as input a networkx graph object
 			and runs a Node2Vec embedding using default values.
 		"""
-		node2vec = Node2Vec(G, dimensions=16, walk_length=30, num_walks=200, workers=2, quiet=True)
-		model = node2vec.fit(window=10, min_count=1, batch_words=4)
-		embeddings = {node: np.array(model.wv[node]) for node in G.nodes()}
+		node2vec = Node2Vec(G, dimensions=4, walk_length=5, num_walks=2, workers=2, quiet=True)
+		model = node2vec.fit(window=2, min_count=1, batch_words=4)
+		embeddings = {node: list(model.wv[node]) for node in G.nodes()}
 		return embeddings

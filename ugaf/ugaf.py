@@ -3,6 +3,10 @@
 	Description:
 """
 
+import scipy
+import vectorizers
+import numpy as np
+import pandas as pd
 from tqdm import tqdm
 from loguru import logger
 from ugaf.graph_collection import Graph_Collection
@@ -12,11 +16,9 @@ from ugaf.embedding_engine import Embedding_Engine
 class UGAF:
 
 
-
 	def __init__(self):
 		self.graph_c = Graph_Collection()
 		self.emb_eng = Embedding_Engine()
-
 
 
 	def build_graph_collection(self, edge_csv_path, node_graph_map_csv_path, filter_for_largest_cc=True, reset_node_indices=True):
@@ -31,7 +33,6 @@ class UGAF:
 			self.graph_c.reset_node_indices()
 		
 
-
 	def build_node_embedding(self, embedding_type):
 		# Check if graph collection object was built
 		if not self.graph_c.gc_status:
@@ -45,5 +46,32 @@ class UGAF:
 			g_obj["embedding"][embedding_type] = embeddings
 
 
-	def build_graph_embedding(self):
-		pass
+	def build_graph_embedding(self, using_embedding):
+		# Check if graph collection object was built
+		if not self.graph_c.gc_status:
+			logger.error("You need to build a graph collection first.")
+
+		logger.info("Creating incidence matrix")
+		n = self.graph_c.total_numb_of_nodes
+		rows = self.graph_c.graph_id_node_array
+		cols = np.arange(n)
+		incidence_matrix = scipy.sparse.csr_matrix((np.repeat(1.0,n).astype(np.float32), (rows, cols)))
+
+		embedding_collection = []
+		for g_obj in tqdm(self.graph_c.graph_collection, desc="Loading embeddings"):
+			if "embedding" not in g_obj:
+				logger.error("You have to run node/structural embedding first.")
+			if using_embedding not in g_obj["embedding"]:
+				logger.error("No such selected embedding.")
+			embs = g_obj["embedding"][using_embedding]
+			embedding_collection.append(list(embs.values()))
+
+		embedding_collection = np.array(embedding_collection, dtype=object)
+		embedding_collection = np.vstack(embedding_collection)
+
+		graphs_embed = vectorizers.ApproximateWassersteinVectorizer(
+			normalization_power=0.66,
+			random_state=42,
+		).fit_transform(incidence_matrix, vectors=embedding_collection)
+		
+		print(graphs_embed.shape)

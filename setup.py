@@ -21,10 +21,10 @@ setuptools.setup(
 	"scikit-learn==1.3.0",
 	"matplotlib==3.7.2",
 	"scipy==1.11.2",
-	"numpy==1.25.2",
 	"networkx==2.8.8",
 	"node2vec==0.4.6",
 	"loguru==0.7.2",
 	"vectorizers==0.2",
-	"scipy==1.11.2"]
+	"scipy==1.11.2",
+	"numpy==1.25.2"]
 )

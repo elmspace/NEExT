@@ -6,6 +6,7 @@
 """
 
 
+import numpy as np
 import pandas as pd
 import networkx as nx
 from tqdm import tqdm
@@ -17,6 +18,8 @@ class Graph_Collection:
 	def __init__(self):
 		self.gc_status = False
 		self.graph_collection = []
+		self.total_numb_of_nodes = None
+		self.graph_id_node_array = None
 
 
 
@@ -40,6 +43,8 @@ class Graph_Collection:
 		node_graph_map["node_id"] = node_graph_map["node_id"].astype(int)
 		node_graph_map["graph_id"] = node_graph_map["graph_id"].astype(int)
 		graph_ids = node_graph_map["graph_id"].unique().tolist()
+		self.total_numb_of_nodes = 0
+		self.graph_id_node_array = []
 		for graph_id in tqdm(graph_ids, desc="Building subgraphs:"):
 			node_list = node_graph_map[node_graph_map["graph_id"] == graph_id]["node_id"].tolist()
 			g = nx.Graph(G.subgraph(node_list))
@@ -52,6 +57,8 @@ class Graph_Collection:
 			g_obj["connected_components"] = sorted(cc, key=len, reverse=True)
 			g_obj["graph_id"] = graph_id
 			self.graph_collection.append(g_obj)
+			self.total_numb_of_nodes += len(g.nodes)
+			self.graph_id_node_array.extend(np.repeat(g_obj["graph_id"], len(g.nodes)))
 
 		self.gc_status = True
 
@@ -69,6 +76,8 @@ class Graph_Collection:
 		logger.info("===================")
 		logger.info("Filtering graphs for to contain only the largest connected component")
 
+		self.total_numb_of_nodes = 0
+		self.graph_id_node_array = []
 		for g_obj in tqdm(self.graph_collection, desc="Filtering graphs:"):
 			largest_cc = list(g_obj["connected_components"][0])
 			g = nx.Graph(g_obj["graph"].subgraph(largest_cc))
@@ -78,6 +87,8 @@ class Graph_Collection:
 			g_obj["numb_of_edges"] = len(g.edges)
 			g_obj["numb_of_connected_components"] = len(cc)
 			g_obj["connected_components"] = sorted(cc, key=len, reverse=True)
+			self.total_numb_of_nodes += len(g.nodes)
+			self.graph_id_node_array.extend(np.repeat(g_obj["graph_id"], len(g.nodes)))
 
 
 
