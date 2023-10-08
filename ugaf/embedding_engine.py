@@ -23,6 +23,10 @@ class Embedding_Engine:
 		"""
 		if embedding_type == "node2vec":
 			embeddings = self.run_node2vec_embedding(G)
+		elif embedding_type == "deepwalk":
+			embeddings = self.run_deepwalk_embedding(G)
+		elif embedding_type == "lsme":
+			embeddings = self.run_lsme_embedding(G)
 		else:
 			logger.error("Embedding type selected is not valid.")
 		return embeddings
@@ -38,3 +42,34 @@ class Embedding_Engine:
 		model = node2vec.fit(window=2, min_count=1, batch_words=4)
 		embeddings = {node: list(model.wv[node]) for node in G.nodes()}
 		return embeddings
+
+
+	def run_lsme_embedding(self, G):
+		"""
+			This method takes as input a networkx graph object
+			and runs a LSME structural embedding.
+		"""
+		print(G)
+
+
+	def run_deepwalk_embedding(self, G):
+		"""
+			This method takes as input a networkx graph object
+			and runs a DeepWalk node embedding.
+		"""
+		pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -74,4 +74,4 @@ class UGAF:
 			random_state=42,
 		).fit_transform(incidence_matrix, vectors=embedding_collection)
 		
-		print(graphs_embed.shape)
+		
