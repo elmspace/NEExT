@@ -33,7 +33,7 @@ class UGAF:
 			self.graph_c.reset_node_indices()
 		
 
-	def build_node_embedding(self, embedding_type):
+	def build_node_embedding(self, embedding_type, emb_dim):
 		# Check if graph collection object was built
 		if not self.graph_c.gc_status:
 			logger.error("You need to build a graph collection first.")
@@ -41,7 +41,7 @@ class UGAF:
 		logger.info("Running %s embedding" % (embedding_type))
 		for g_obj in tqdm(self.graph_c.graph_collection, desc="Building embeddings"):
 			G = g_obj["graph"]
-			embeddings = self.emb_eng.run_embedding(G, embedding_type)
+			embeddings = self.emb_eng.run_embedding(G, embedding_type, emb_dim)
 			g_obj["embedding"] = {}
 			g_obj["embedding"][embedding_type] = embeddings
 
