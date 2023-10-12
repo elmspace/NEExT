@@ -24,7 +24,6 @@ ugaf.build_graph_collection(edge_csv_path, node_graph_map_csv_path, filter_for_l
 
 ugaf.print_gc_info()
 
-
 exit(0)
 
 
