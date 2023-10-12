@@ -22,7 +22,7 @@ node_graph_map_csv_path = base_dir + "node_graph_mapping_file.csv"
 
 ugaf.build_graph_collection(edge_csv_path, node_graph_map_csv_path, filter_for_largest_cc=True, reset_node_indices=True)
 
-ugaf.print_gc_info()
+ugaf.get_gc_stats()
 
 exit(0)
 

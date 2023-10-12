@@ -98,3 +98,22 @@ class Graph_Collection:
 				mapping[node] = idx
 			g_obj["graph"] = nx.relabel_nodes(g, mapping)
 			g_obj["re_index_map"] = mapping
+
+
+	def export_graph_collection_stats(self):
+		"""
+			This method export a collection of basic statistics about the graph collection.
+		"""
+		
+		stat_numb_of_nodes = []
+		stat_avg_node_degree = []
+		for g_obj in tqdm(self.graph_collection, desc="Building stats:"):
+			g = g_obj["graph"]
+			stat_numb_of_nodes.append(len(g.nodes))
+			stat_avg_node_degree.append(np.mean(np.array(g.degree)[:,1]))
+
+		stat_obj = {}
+		stat_obj["numb_node_dist"] = stat_numb_of_nodes
+		stat_obj["avg_node_degree"] = stat_avg_node_degree
+
+		return stat_obj

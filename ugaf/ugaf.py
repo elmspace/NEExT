@@ -1,6 +1,5 @@
 """
 	Author : Ash Dehghan
-	Description:
 """
 
 import scipy
@@ -9,6 +8,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from loguru import logger
+import matplotlib.pyplot as plt
 from ugaf.graph_collection import Graph_Collection
 from ugaf.embedding_engine import Embedding_Engine
 
@@ -27,15 +27,34 @@ class UGAF:
 			if not self.gc_status:
 				logger.error("You need to build a graph collection first.")
 				exit(0)
+			func(self)
 		return _check_gc_status
 
 
 	@check_gc_status
-	def print_gc_info(self):
+	def get_gc_stats(self):
 		"""
 			This method will print out some simple information about the graph collection.
 		"""
-		
+		graph_c_stats = self.graph_c.export_graph_collection_stats()
+
+		# Plot the node distribution
+		x = graph_c_stats["numb_node_dist"]
+		plt.figure()
+		plt.hist(x)
+		plt.xlabel('Numb of Nodes', fontsize=12)
+		plt.ylabel('Freq', fontsize=12)
+		plt.title("Distribution of Number of Nodes per Graph", fontsize=14)
+
+		# Plot avg node degree distribution
+		x = graph_c_stats["avg_node_degree"]
+		plt.figure()
+		plt.hist(x)
+		plt.xlabel('Avg Node Degree', fontsize=12)
+		plt.ylabel('Freq', fontsize=12)
+		plt.title("Distribution of Average Node Degree per Graph", fontsize=14)
+
+		plt.show()
 
 
 	def build_graph_collection(self, edge_csv_path, node_graph_map_csv_path, filter_for_largest_cc=True, reset_node_indices=True):
