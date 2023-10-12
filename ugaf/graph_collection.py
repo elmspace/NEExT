@@ -16,7 +16,6 @@ from loguru import logger
 class Graph_Collection:
 
 	def __init__(self):
-		self.gc_status = False
 		self.graph_collection = []
 		self.total_numb_of_nodes = None
 		self.graph_id_node_array = None
@@ -29,7 +28,7 @@ class Graph_Collection:
 			of graphs object.
 		"""
 		logger.info("===================")
-		logger.info("Rading edge file")
+		logger.info("Reading edge file")
 
 		edges = pd.read_csv(edge_csv_path)
 		src_nodes = [int(i) for i in edges["node_a"].tolist()]
@@ -60,8 +59,6 @@ class Graph_Collection:
 			self.total_numb_of_nodes += len(g.nodes)
 			self.graph_id_node_array.extend(np.repeat(g_obj["graph_id"], len(g.nodes)))
 
-		self.gc_status = True
-
 
 
 	def filter_collection_for_largest_connected_component(self):
@@ -69,10 +66,6 @@ class Graph_Collection:
 			This method will go through all the sub-graphs and if the number
 			of component of the sub-graph is greater than 1, it will only keep the largest component.
 		"""
-		# Check to see if graph collection was built
-		if not self.gc_status:
-			logger.error("You need to build a graph collection first.")
-
 		logger.info("===================")
 		logger.info("Filtering graphs for to contain only the largest connected component")
 

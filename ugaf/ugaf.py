@@ -19,6 +19,23 @@ class UGAF:
 	def __init__(self):
 		self.graph_c = Graph_Collection()
 		self.emb_eng = Embedding_Engine()
+		self.gc_status = False
+
+
+	def check_gc_status(func):
+		def _check_gc_status(self):
+			if not self.gc_status:
+				logger.error("You need to build a graph collection first.")
+				exit(0)
+		return _check_gc_status
+
+
+	@check_gc_status
+	def print_gc_info(self):
+		"""
+			This method will print out some simple information about the graph collection.
+		"""
+		
 
 
 	def build_graph_collection(self, edge_csv_path, node_graph_map_csv_path, filter_for_largest_cc=True, reset_node_indices=True):
@@ -31,12 +48,11 @@ class UGAF:
 			self.graph_c.filter_collection_for_largest_connected_component()
 		if reset_node_indices:
 			self.graph_c.reset_node_indices()
+		self.gc_status = True
 		
 
+	@check_gc_status
 	def build_node_embedding(self, embedding_type, emb_dim):
-		# Check if graph collection object was built
-		if not self.graph_c.gc_status:
-			logger.error("You need to build a graph collection first.")
 		# Run embedding calculation
 		logger.info("Running %s embedding" % (embedding_type))
 		for g_obj in tqdm(self.graph_c.graph_collection, desc="Building embeddings"):
@@ -46,11 +62,8 @@ class UGAF:
 			g_obj["embedding"][embedding_type] = embeddings
 
 
+	@check_gc_status
 	def build_graph_embedding(self, using_embedding):
-		# Check if graph collection object was built
-		if not self.graph_c.gc_status:
-			logger.error("You need to build a graph collection first.")
-
 		logger.info("Creating incidence matrix")
 		n = self.graph_c.total_numb_of_nodes
 		rows = self.graph_c.graph_id_node_array
