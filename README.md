@@ -46,3 +46,4 @@ Here is an example:
 
 Here, nodes (0, 1 and 2) belong to graph 1 and nodes (3 and 4) belong to graph 2.
 ** Note that UGAF does not make the assumption that each graph is singhle connected component. Although you could filter for only connected component, as you shall in the example section.
+
