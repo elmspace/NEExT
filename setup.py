@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
 	name='ugaf',
-	version='0.0.3',
+	version='0.0.4',
 	author='Ashkan Dehghan',
 	author_email='ash.dehghan@gmail.com',
 	description='Unsupervised Graph Analysis Framework.',
@@ -27,5 +27,5 @@ setuptools.setup(
 	"vectorizers==0.2",
 	"scipy==1.11.2",
 	"numpy==1.25.2",
-	"deepwalk==1.0.3"]
+	"karateclub"]
 )
