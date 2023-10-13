@@ -21,7 +21,6 @@ class Graph_Collection:
 		self.graph_id_node_array = None
 
 
-
 	def load_graphs(self, edge_csv_path, node_graph_map_csv_path):
 		"""
 			This method uses the user configuration to build a collection
@@ -60,7 +59,6 @@ class Graph_Collection:
 			self.graph_id_node_array.extend(np.repeat(g_obj["graph_id"], len(g.nodes)))
 
 
-
 	def filter_collection_for_largest_connected_component(self):
 		"""
 			This method will go through all the sub-graphs and if the number
@@ -82,7 +80,6 @@ class Graph_Collection:
 			g_obj["connected_components"] = sorted(cc, key=len, reverse=True)
 			self.total_numb_of_nodes += len(g.nodes)
 			self.graph_id_node_array.extend(np.repeat(g_obj["graph_id"], len(g.nodes)))
-
 
 
 	def reset_node_indices(self):

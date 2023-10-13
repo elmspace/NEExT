@@ -23,11 +23,11 @@ class UGAF:
 
 
 	def check_gc_status(func):
-		def _check_gc_status(self):
+		def _check_gc_status(self, *args, **kwargs):
 			if not self.gc_status:
 				logger.error("You need to build a graph collection first.")
 				exit(0)
-			func(self)
+			func(self, *args, **kwargs)
 		return _check_gc_status
 
 

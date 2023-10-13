@@ -9,6 +9,7 @@ import numpy as np
 import networkx as nx
 from loguru import logger
 from node2vec import Node2Vec
+from karateclub import DeepWalk
 
 
 class Embedding_Engine:
@@ -16,7 +17,6 @@ class Embedding_Engine:
 
 	def __init__(self):
 		pass
-
 
 
 	def run_embedding(self, G, embedding_type, emb_dim):
@@ -32,7 +32,6 @@ class Embedding_Engine:
 		else:
 			logger.error("Embedding type selected is not valid.")
 		return embeddings
-
 
 
 	def run_node2vec_embedding(self, G, emb_dim):
@@ -102,13 +101,18 @@ class Embedding_Engine:
 		return emb
 
 
-
 	def run_deepwalk_embedding(self, G, emb_dim):
 		"""
 			This method takes as input a networkx graph object
 			and runs a DeepWalk node embedding.
 		"""
-		pass
+		model =  DeepWalk(dimensions=emb_dim)
+		model.fit(G)
+		dw_emb = model.get_embedding()
+		embeddings = {}
+		for index, node in enumerate(list(G.nodes)):
+			embeddings[node] = list(dw_emb[index])
+		return embeddings
 
 
 

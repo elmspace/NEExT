@@ -22,13 +22,9 @@ node_graph_map_csv_path = base_dir + "node_graph_mapping_file.csv"
 
 ugaf.build_graph_collection(edge_csv_path, node_graph_map_csv_path, filter_for_largest_cc=True, reset_node_indices=True)
 
-ugaf.get_gc_stats()
-
-exit(0)
-
 
 ## For testing only
 # ugaf.graph_c.graph_collection = ugaf.graph_c.graph_collection[0:5]
 
-ugaf.build_node_embedding(embedding_type="lsme", emb_dim=16)
-ugaf.build_graph_embedding(using_embedding="lsme")
+ugaf.build_node_embedding(embedding_type="deepwalk", emb_dim=16)
+ugaf.build_graph_embedding(using_embedding="deepwalk")

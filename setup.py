@@ -27,5 +27,5 @@ setuptools.setup(
 	"vectorizers==0.2",
 	"scipy==1.11.2",
 	"numpy==1.25.2",
-	"karateclub"]
+	"karateclub==1.2.2"]
 )
