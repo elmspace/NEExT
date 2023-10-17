@@ -9,6 +9,7 @@ import pandas as pd
 from tqdm import tqdm
 from loguru import logger
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
 from ugaf.graph_collection import Graph_Collection
 from ugaf.embedding_engine import Embedding_Engine
 
@@ -79,6 +80,26 @@ class UGAF:
 			embeddings = self.emb_eng.run_embedding(G, embedding_type, emb_dim)
 			g_obj["embedding"] = {}
 			g_obj["embedding"][embedding_type] = embeddings
+		self.normalize_embedding(embedding_type)
+
+
+	@check_gc_status
+	def normalize_embedding(self, embedding_type):
+		"""
+			This method normalizes the embedding vectors using
+			Scikit-Learn standard scaler.
+		"""
+		logger.info("Normalizing the embedding data")
+		for g_obj in tqdm(self.graph_c.graph_collection, desc="Normalizing"):
+			embs = g_obj["embedding"][embedding_type]
+			scaler = StandardScaler()
+			embs_df = pd.DataFrame(embs)
+			embs_df_cols = embs_df.columns.tolist()
+			embs_df = pd.DataFrame(scaler.fit_transform(embs_df))
+			embs_df.columns = embs_df_cols
+			g_obj["embedding"][embedding_type] = embs_df.to_dict(orient='list')
+
+
 
 
 	@check_gc_status
