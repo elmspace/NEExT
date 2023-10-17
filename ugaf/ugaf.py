@@ -100,8 +100,6 @@ class UGAF:
 			g_obj["embedding"][embedding_type] = embs_df.to_dict(orient='list')
 
 
-
-
 	@check_gc_status
 	def build_graph_embedding(self, using_embedding):
 		logger.info("Creating incidence matrix")
