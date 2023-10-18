@@ -28,5 +28,5 @@ setuptools.setup(
 	"scipy==1.11.2",
 	"numpy==1.25.2",
 	"karateclub==1.2.2",
-	"umap-learn"]
+	"umap-learn==0.5.4"]
 )

@@ -2,6 +2,7 @@
 	Author : Ash Dehghan
 """
 
+import umap
 import scipy
 import vectorizers
 import numpy as np
@@ -9,6 +10,8 @@ import pandas as pd
 from tqdm import tqdm
 from loguru import logger
 import matplotlib.pyplot as plt
+from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from ugaf.graph_collection import Graph_Collection
 from ugaf.embedding_engine import Embedding_Engine
@@ -22,6 +25,7 @@ class UGAF:
 		self.emb_eng = Embedding_Engine()
 		self.gc_status = False
 		self.graph_embedding = {}
+		self.graph_emb_dim_reduced = {}
 
 	def check_gc_status(func):
 		def _check_gc_status(self, *args, **kwargs):
@@ -132,7 +136,7 @@ class UGAF:
 		
 
 	@check_gc_status
-	def run_umap(self, source_embedding, plot=False):
+	def reduce_graph_embedding_dimension(self, algorithm, source_embedding, plot=False):
 		"""
 			This function uses the graph embeddings built using source node/structural embedding
 			and saves it, and also plots it, if <plot> flag is set to True.
@@ -141,5 +145,36 @@ class UGAF:
 		if not source_embedding in self.graph_embedding:
 			logger.error("Missing graph embedding for source: %s" %(source_embedding))
 			exit(0)
+		if algorithm == "umap":
+			logger.info("Running UMAP")
+			reducer = umap.UMAP()
+			redu_emb = reducer.fit_transform(self.graph_embedding[source_embedding])
+			self.graph_emb_dim_reduced["umap"] = {}
+			self.graph_emb_dim_reduced["umap"]["x"] = redu_emb[:,0]
+			self.graph_emb_dim_reduced["umap"]["y"] = redu_emb[:,1]
+		elif algorithm == "tsne":
+			logger.info("Running tSNE")
+			reducer = TSNE(n_components=2, random_state=0)
+			redu_emb = reducer.fit_transform(self.graph_embedding[source_embedding])
+			self.graph_emb_dim_reduced["tsne"] = {}
+			self.graph_emb_dim_reduced["tsne"]["x"] = redu_emb[:,0]
+			self.graph_emb_dim_reduced["tsne"]["y"] = redu_emb[:,1]
+		elif algorithm == "pca":
+			logger.info("Running PCA")
+			reducer = PCA(n_components=2)
+			redu_emb = reducer.fit_transform(self.graph_embedding[source_embedding])
+			self.graph_emb_dim_reduced["pca"] = {}
+			self.graph_emb_dim_reduced["pca"]["x"] = redu_emb[:,0]
+			self.graph_emb_dim_reduced["pca"]["y"] = redu_emb[:,1]
+		else:
+			logger.error("Selected algorithm is not supported.")
 
-		
+		if plot:
+			x = self.graph_emb_dim_reduced[algorithm]["x"]
+			y = self.graph_emb_dim_reduced[algorithm]["y"]
+			plt.figure()
+			plt.scatter(x, y)
+			plt.xlabel('Dim-1', fontsize=12)
+			plt.ylabel('Dim-2', fontsize=12)
+			plt.title(algorithm.upper(), fontsize=14)
+			plt.show()
