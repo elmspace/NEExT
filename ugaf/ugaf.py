@@ -155,26 +155,73 @@ class UGAF:
 		if not source_embedding in self.graph_embedding:
 			logger.error("Missing graph embedding for source: %s" %(source_embedding))
 			exit(0)
+		if source_embedding not in self.graph_emb_dim_reduced:
+			self.graph_emb_dim_reduced[source_embedding] = {}
 		if algorithm == "umap":
 			logger.info("Running UMAP")
 			reducer = umap.UMAP()
 			redu_emb = reducer.fit_transform(self.graph_embedding[source_embedding])
-			self.graph_emb_dim_reduced["umap"] = {}
-			self.graph_emb_dim_reduced["umap"]["x"] = redu_emb[:,0]
-			self.graph_emb_dim_reduced["umap"]["y"] = redu_emb[:,1]
+			self.graph_emb_dim_reduced[source_embedding]["umap"] = {}
+			self.graph_emb_dim_reduced[source_embedding]["umap"]["x"] = redu_emb[:,0]
+			self.graph_emb_dim_reduced[source_embedding]["umap"]["y"] = redu_emb[:,1]
 		elif algorithm == "tsne":
 			logger.info("Running tSNE")
 			reducer = TSNE(n_components=2, random_state=0)
 			redu_emb = reducer.fit_transform(self.graph_embedding[source_embedding])
-			self.graph_emb_dim_reduced["tsne"] = {}
-			self.graph_emb_dim_reduced["tsne"]["x"] = redu_emb[:,0]
-			self.graph_emb_dim_reduced["tsne"]["y"] = redu_emb[:,1]
+			self.graph_emb_dim_reduced[source_embedding]["tsne"] = {}
+			self.graph_emb_dim_reduced[source_embedding]["tsne"]["x"] = redu_emb[:,0]
+			self.graph_emb_dim_reduced[source_embedding]["tsne"]["y"] = redu_emb[:,1]
 		elif algorithm == "pca":
 			logger.info("Running PCA")
 			reducer = PCA(n_components=2)
 			redu_emb = reducer.fit_transform(self.graph_embedding[source_embedding])
-			self.graph_emb_dim_reduced["pca"] = {}
-			self.graph_emb_dim_reduced["pca"]["x"] = redu_emb[:,0]
-			self.graph_emb_dim_reduced["pca"]["y"] = redu_emb[:,1]
+			self.graph_emb_dim_reduced[source_embedding]["pca"] = {}
+			self.graph_emb_dim_reduced[source_embedding]["pca"]["x"] = redu_emb[:,0]
+			self.graph_emb_dim_reduced[source_embedding]["pca"]["y"] = redu_emb[:,1]
 		else:
 			logger.error("Selected algorithm is not supported.")
+
+
+	@check_gc_status
+	def plot_graph_embedding(self, source_embedding, dim_reduc_algo, color_using_grpah_labels=False):
+		logger.info("Plotting 2-dimensional graph embeddings")
+		if source_embedding not in self.graph_emb_dim_reduced:
+			logger.error("No data found for: %s" %(source_embedding))
+		if dim_reduc_algo not in self.graph_emb_dim_reduced[source_embedding]:
+			logger.error("No data found for: %s" %(dim_reduc_algo))
+
+		if color_using_grpah_labels:
+			if not self.graph_c.graph_label_list_unique:
+				logger.error("You have to set graph labels first.")
+
+			color_numbs = list(range(5, 5*len(self.graph_c.graph_label_list_unique)+1, 5))
+			colormap = plt.get_cmap('viridis')
+			color_numbs_norm = plt.Normalize(min(color_numbs), max(color_numbs))
+			colors = [colormap(color_numbs_norm(value)) for value in color_numbs]
+
+			color_df = pd.DataFrame()
+			color_df["graph_label"] = self.graph_c.graph_label_list_unique
+			color_df["graph_label_color"] = colors
+
+			color_df = self.graph_c.grpah_labels_df.merge(color_df, on="graph_label")
+
+			x = self.graph_emb_dim_reduced[source_embedding][dim_reduc_algo]["x"]
+			y = self.graph_emb_dim_reduced[source_embedding][dim_reduc_algo]["y"]
+			colors = color_df["graph_label_color"].tolist()
+
+			plt.figure()
+			plt.scatter(x, y, c=colors, cmap='viridis', s=100)
+			plt.xlabel('Dim-1', fontsize=12)
+			plt.ylabel('Dim-2', fontsize=12)
+			plt.title("Low-Dim Representation of Graph Embeddings", fontsize=14)
+			plt.show()
+
+		else:
+			x = self.graph_emb_dim_reduced[source_embedding][dim_reduc_algo]["x"]
+			y = self.graph_emb_dim_reduced[source_embedding][dim_reduc_algo]["y"]
+			plt.figure()
+			plt.scatter(x, y, cmap='viridis', s=100)
+			plt.xlabel('Dim-1', fontsize=12)
+			plt.ylabel('Dim-2', fontsize=12)
+			plt.title("Low-Dim Representation of Graph Embeddings", fontsize=14)
+			plt.show()

@@ -19,6 +19,8 @@ class Graph_Collection:
 		self.graph_collection = []
 		self.total_numb_of_nodes = None
 		self.graph_id_node_array = None
+		self.graph_label_list_unique = None
+		self.grpah_labels_df = None
 
 
 	def load_graphs(self, edge_csv_path, node_graph_map_csv_path):
@@ -117,6 +119,8 @@ class Graph_Collection:
 		"""
 		logger.info("Reading and assigning graph labels")
 		graph_labels = pd.read_csv(graph_label_csv_path)
+		self.grpah_labels_df = graph_labels.copy(deep=True)
+		self.graph_label_list_unique = graph_labels["graph_label"].unique().tolist()
 		graph_labels = graph_labels.set_index("graph_id")["graph_label"].to_dict()
 		no_label_counter = 0
 		for g_obj in tqdm(self.graph_collection, desc="Assigning graph labels:"):
