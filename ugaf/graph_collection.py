@@ -28,15 +28,12 @@ class Graph_Collection:
 		"""
 		logger.info("===================")
 		logger.info("Reading edge file")
-
 		edges = pd.read_csv(edge_csv_path)
 		src_nodes = [int(i) for i in edges["node_a"].tolist()]
 		dst_nodes = [int(i) for i in edges["node_b"].tolist()]
 		edgelist = list(zip(src_nodes, dst_nodes))
 		G = nx.from_edgelist(edgelist)
-
 		logger.info("Parsing graph data into individual graphs")
-
 		node_graph_map = pd.read_csv(node_graph_map_csv_path)
 		node_graph_map["node_id"] = node_graph_map["node_id"].astype(int)
 		node_graph_map["graph_id"] = node_graph_map["graph_id"].astype(int)
@@ -66,7 +63,6 @@ class Graph_Collection:
 		"""
 		logger.info("===================")
 		logger.info("Filtering graphs for to contain only the largest connected component")
-
 		self.total_numb_of_nodes = 0
 		self.graph_id_node_array = []
 		for g_obj in tqdm(self.graph_collection, desc="Filtering graphs:"):
@@ -108,9 +104,26 @@ class Graph_Collection:
 			g = g_obj["graph"]
 			stat_numb_of_nodes.append(len(g.nodes))
 			stat_avg_node_degree.append(np.mean(np.array(g.degree)[:,1]))
-
 		stat_obj = {}
 		stat_obj["numb_node_dist"] = stat_numb_of_nodes
 		stat_obj["avg_node_degree"] = stat_avg_node_degree
-
 		return stat_obj
+
+
+	def assign_graph_labels(self, graph_label_csv_path):
+		"""
+			This function will take as input graph label csv path.
+			It will load the labels and assigns it to graphs in the collection.
+		"""
+		logger.info("Reading and assigning graph labels")
+		graph_labels = pd.read_csv(graph_label_csv_path)
+		graph_labels = graph_labels.set_index("graph_id")["graph_label"].to_dict()
+		no_label_counter = 0
+		for g_obj in tqdm(self.graph_collection, desc="Assigning graph labels:"):
+			graph_id = g_obj["graph_id"]
+			if graph_id in graph_labels:
+				g_obj["graph_label"] = graph_labels[graph_id]
+			else:
+				g_obj["graph_label"] = "unknown"
+				no_label_counter += 1
+		logger.info("Number of unknown labels: %s" %(str(no_label_counter)))

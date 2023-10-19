@@ -136,10 +136,20 @@ class UGAF:
 		
 
 	@check_gc_status
-	def reduce_graph_embedding_dimension(self, algorithm, source_embedding, plot=False):
+	def add_graph_labels(self, graph_label_csv_path):
+		"""
+			This function takes as input a csv file for graph labels and uses the pre-built
+			graph collection object, to assign labels to graphs.
+		"""
+		self.graph_c.assign_graph_labels(graph_label_csv_path)
+
+
+
+	@check_gc_status
+	def reduce_graph_embedding_dimension(self, algorithm, source_embedding):
 		"""
 			This function uses the graph embeddings built using source node/structural embedding
-			and saves it, and also plots it, if <plot> flag is set to True.
+			and saves it.
 		"""
 		# Check if source embedding exists
 		if not source_embedding in self.graph_embedding:
@@ -168,13 +178,3 @@ class UGAF:
 			self.graph_emb_dim_reduced["pca"]["y"] = redu_emb[:,1]
 		else:
 			logger.error("Selected algorithm is not supported.")
-
-		if plot:
-			x = self.graph_emb_dim_reduced[algorithm]["x"]
-			y = self.graph_emb_dim_reduced[algorithm]["y"]
-			plt.figure()
-			plt.scatter(x, y)
-			plt.xlabel('Dim-1', fontsize=12)
-			plt.ylabel('Dim-2', fontsize=12)
-			plt.title(algorithm.upper(), fontsize=14)
-			plt.show()
