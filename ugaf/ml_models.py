@@ -23,7 +23,8 @@ class ML_Models:
 	def build_classifier(self, data_obj, classifier_type):
 		data_obj = self.format_data(data_obj)
 		if classifier_type == "decision_tree_classifier":
-			self.build_decision_tree_classifier(data_obj)
+			restult = self.build_decision_tree_classifier(data_obj)
+			return restult
 		elif classifier_type == "xgboost":
 			pass
 		elif classifier_type == "nn":
