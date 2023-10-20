@@ -11,10 +11,12 @@ from tqdm import tqdm
 from loguru import logger
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
+from ugaf.ml_models import ML_Models
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from ugaf.graph_collection import Graph_Collection
 from ugaf.embedding_engine import Embedding_Engine
+
 
 
 class UGAF:
@@ -23,8 +25,11 @@ class UGAF:
 	def __init__(self):
 		self.graph_c = Graph_Collection()
 		self.emb_eng = Embedding_Engine()
+		self.ml_model = ML_Models()
 		self.gc_status = False
+		self.emb_cols = []
 		self.graph_embedding = {}
+		self.graph_embedding_df = {}
 		self.graph_emb_dim_reduced = {}
 
 	def check_gc_status(func):
@@ -88,6 +93,7 @@ class UGAF:
 			embeddings = self.emb_eng.run_embedding(G, embedding_type, emb_dim)
 			g_obj["embedding"] = {}
 			g_obj["embedding"][embedding_type] = embeddings
+			self.graph_c.built_embeddings.add(embedding_type)
 		self.normalize_embedding(embedding_type)
 
 
@@ -117,6 +123,7 @@ class UGAF:
 		incidence_matrix = scipy.sparse.csr_matrix((np.repeat(1.0,n).astype(np.float32), (rows, cols)))
 
 		embedding_collection = []
+		graph_ids = []
 		for g_obj in tqdm(self.graph_c.graph_collection, desc="Loading embeddings"):
 			if "embedding" not in g_obj:
 				logger.error("You have to run node/structural embedding first.")
@@ -124,6 +131,7 @@ class UGAF:
 				logger.error("No such selected embedding.")
 			embs = g_obj["embedding"][source_embedding]
 			embedding_collection.append(list(embs.values()))
+			graph_ids.append(g_obj["graph_id"])
 
 		embedding_collection = np.array(embedding_collection, dtype=object)
 		embedding_collection = np.vstack(embedding_collection)
@@ -133,6 +141,11 @@ class UGAF:
 			random_state=42,
 		).fit_transform(incidence_matrix, vectors=embedding_collection)
 		self.graph_embedding[source_embedding] = graphs_embed
+		df = pd.DataFrame(graphs_embed)
+		self.emb_cols = ["emb_"+str(i) for i in range(df.shape[1])]
+		df.columns = self.emb_cols
+		df["graph_id"] = graph_ids
+		self.graph_embedding_df[source_embedding] = df
 		
 
 	@check_gc_status
@@ -225,3 +238,24 @@ class UGAF:
 			plt.ylabel('Dim-2', fontsize=12)
 			plt.title("Low-Dim Representation of Graph Embeddings", fontsize=14)
 			plt.show()
+
+
+	@check_gc_status
+	def build_classifier(self, classifier_type, source_embedding):
+
+		logger.info("Building classifier")
+		if source_embedding not in self.graph_c.built_embeddings:
+			logger.error("Source embedding %s does not exit." % (built_embeddings))
+
+		data_obj = self.format_data_for_classification(source_embedding)
+		self.ml_model.build_classifier(data_obj, classifier_type)
+
+
+	def format_data_for_classification(self, source_embedding):
+		graph_emb = self.graph_embedding_df[source_embedding]
+		data = self.graph_c.grpah_labels_df.merge(graph_emb, on="graph_id")
+		data_obj = {}
+		data_obj["data"] = data
+		data_obj["x_cols"] = self.emb_cols
+		data_obj["y_col"] = "graph_label"
+		return data_obj

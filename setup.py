@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
 	name='ugaf',
-	version='0.0.5',
+	version='0.0.6',
 	author='Ashkan Dehghan',
 	author_email='ash.dehghan@gmail.com',
 	description='Unsupervised Graph Analysis Framework.',
@@ -28,5 +28,6 @@ setuptools.setup(
 	"scipy==1.11.2",
 	"numpy==1.25.2",
 	"karateclub==1.2.2",
-	"umap-learn==0.5.4"]
+	"umap-learn==0.5.4",
+	"jupyter"]
 )

@@ -21,6 +21,7 @@ class Graph_Collection:
 		self.graph_id_node_array = None
 		self.graph_label_list_unique = None
 		self.grpah_labels_df = None
+		self.built_embeddings = set()
 
 
 	def load_graphs(self, edge_csv_path, node_graph_map_csv_path):
