@@ -63,7 +63,7 @@ class ML_Models:
 		y_pred = clf.predict(data_obj["X_test"])
 		y_test = data_obj["y_test"]
 		performance_report = self.run_performance(y_test, y_pred)
-		print(performance_report)
+		return performance_report
 
 
 	def run_performance(self, y_test, y_pred):

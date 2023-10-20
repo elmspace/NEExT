@@ -242,13 +242,12 @@ class UGAF:
 
 	@check_gc_status
 	def build_classifier(self, classifier_type, source_embedding):
-
 		logger.info("Building classifier")
 		if source_embedding not in self.graph_c.built_embeddings:
 			logger.error("Source embedding %s does not exit." % (built_embeddings))
-
 		data_obj = self.format_data_for_classification(source_embedding)
-		self.ml_model.build_classifier(data_obj, classifier_type)
+		classifier_results = self.ml_model.build_classifier(data_obj, classifier_type)
+		return classifier_results
 
 
 	def format_data_for_classification(self, source_embedding):
