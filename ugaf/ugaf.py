@@ -240,7 +240,6 @@ class UGAF:
 			plt.show()
 
 
-	@check_gc_status
 	def build_classifier(self, classifier_type, source_embedding):
 		logger.info("Building classifier")
 		if source_embedding not in self.graph_c.built_embeddings:
