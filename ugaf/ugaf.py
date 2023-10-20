@@ -32,6 +32,7 @@ class UGAF:
 		self.graph_embedding_df = {}
 		self.graph_emb_dim_reduced = {}
 
+
 	def check_gc_status(func):
 		def _check_gc_status(self, *args, **kwargs):
 			if not self.gc_status:
@@ -91,7 +92,6 @@ class UGAF:
 		for g_obj in tqdm(self.graph_c.graph_collection, desc="Building embeddings"):
 			G = g_obj["graph"]
 			embeddings = self.emb_eng.run_embedding(G, embedding_type, emb_dim)
-			g_obj["embedding"] = {}
 			g_obj["embedding"][embedding_type] = embeddings
 			self.graph_c.built_embeddings.add(embedding_type)
 		self.normalize_embedding(embedding_type)

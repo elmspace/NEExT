@@ -51,6 +51,7 @@ class Graph_Collection:
 			g_obj["graph"] = g
 			g_obj["numb_of_nodes"] = len(g.nodes)
 			g_obj["numb_of_edges"] = len(g.edges)
+			g_obj["embedding"] = {}
 			g_obj["numb_of_connected_components"] = len(cc)
 			g_obj["connected_components"] = sorted(cc, key=len, reverse=True)
 			g_obj["graph_id"] = graph_id
