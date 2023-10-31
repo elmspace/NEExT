@@ -97,6 +97,22 @@ class UGAF:
 		self.normalize_embedding(embedding_type)
 
 
+	def build_custom_node_embedding(self, emb_func, emb_func_name, **kwargs):
+		"""
+			This method allows the user to create their own embedding algorithm
+			and pass it into the ugaf object. The user can pass whatever arguments
+			the users needs for their embedding algorithm.
+		"""
+		logger.info("Running user defined embedding.")
+		for g_obj in tqdm(self.graph_c.graph_collection, desc="Building embeddings"):
+			G = g_obj["graph"]
+			embeddings = emb_func(G, **kwargs)
+			g_obj["embedding"][emb_func_name] = embeddings
+			self.graph_c.built_embeddings.add(emb_func_name)
+			exit(0)
+		self.normalize_embedding(embedding_type)
+
+
 	@check_gc_status
 	def normalize_embedding(self, embedding_type):
 		"""
