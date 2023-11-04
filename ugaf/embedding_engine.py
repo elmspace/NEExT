@@ -29,6 +29,8 @@ class Embedding_Engine:
 			embeddings = self.run_deepwalk_embedding(G, emb_dim)
 		elif embedding_type == "lsme":
 			embeddings = self.run_lsme_embedding(G, emb_dim)
+		elif embedding_type == "expansion":
+			embeddings = self.run_expansion_embedding(G, emb_dim)
 		else:
 			logger.error("Embedding type selected is not valid.")
 		return embeddings
@@ -114,6 +116,20 @@ class Embedding_Engine:
 			embeddings[node] = list(dw_emb[index])
 		return embeddings
 
+
+	def run_expansion_embedding(self, G, emb_dim):
+		"""
+			This method takes as input a networkx graph object
+			and runs a simple expansion property embedding.
+		"""
+
+		for node in G.nodes:
+			print(node)
+
+			exit(0)
+
+
+		exit(0)
 
 
 
