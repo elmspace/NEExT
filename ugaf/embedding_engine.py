@@ -123,8 +123,10 @@ class Embedding_Engine:
 			and runs a simple expansion property embedding.
 		"""
 
+		dist_dict = {}
+		node_dict = {}
 		for node in G.nodes:
-			print(node)
+			nbs = G.neighbors(node)
 
 			exit(0)
 
