@@ -122,16 +122,56 @@ class Embedding_Engine:
 			This method takes as input a networkx graph object
 			and runs a simple expansion property embedding.
 		"""
-
-		dist_dict = {}
-		node_dict = {}
+		embeddings = {}
+		d = (2 * len(G.edges))/len(G.nodes)
 		for node in G.nodes:
-			nbs = G.neighbors(node)
+			dist_list = self.get_numb_of_nb_x_hops_away(G, node, emb_dim)
+			norm_list = []
+			for i in range(len(dist_list)):
+				if i == 0:
+					norm_val = 1 * d
+				else:
+					norm_val = dist_list[i] - 1
+					if norm_val <= 0:
+						norm_val = 1
+				norm_list.append(norm_val * d)
+			emb = [dist_list[i]/norm_list[i] for i in range(len(dist_list))]
+			embeddings[node] = emb
+		return embeddings
+					
 
-			exit(0)
-
-
-		exit(0)
+	def get_numb_of_nb_x_hops_away(self, G, node, max_hop_length):
+		"""
+			This method will compute the number of neighbors x hops away from
+			a given node.
+		"""
+		node_dict = {}
+		dist_dict = {}
+		node_list = [node]
+		keep_going = True
+		while keep_going:
+			n = node_list.pop(0)
+			nbs = G.neighbors(n)
+			for nb in nbs:
+				if (nb not in node_dict) and (nb != node):
+					node_list.append(nb)
+					dist_to_source = len(nx.shortest_path(G, source=node, target=nb)) - 1
+					node_dict[nb] = dist_to_source
+					if dist_to_source not in dist_dict:
+						dist_dict[dist_to_source] = [nb]
+					else:
+						dist_dict[dist_to_source].append(nb)
+					if dist_to_source >= max_hop_length:
+						keep_going = False
+			if len(node_list) == 0:
+				keep_going = False
+		# Build dist list
+		max_hop = max(list(dist_dict.keys()))
+		hop_list = []
+		for i in range(1, max_hop+1):
+			hop_list.append(len(dist_dict[i]))
+		hop_list = hop_list + [0]*(max_hop_length-len(hop_list))
+		return hop_list
 
 
 
