@@ -213,7 +213,6 @@ class UGAF:
 		self.graph_c.assign_graph_labels(graph_label_csv_path)
 
 
-
 	@check_gc_status
 	def reduce_graph_embedding_dimension(self, algorithm, source_embedding):
 		"""
