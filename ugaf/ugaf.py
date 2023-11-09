@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from loguru import logger
+from numpy import linalg as LA
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
 from ugaf.ml_models import ML_Models
@@ -16,7 +17,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from ugaf.graph_collection import Graph_Collection
 from ugaf.embedding_engine import Embedding_Engine
-
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 class UGAF:
@@ -131,7 +132,46 @@ class UGAF:
 
 
 	@check_gc_status
-	def build_graph_embedding(self, source_embedding):
+	def build_graph_embedding(self, source_node_embedding, graph_embedding_type):
+		if graph_embedding_type == "wasserstein":
+			self.build_wasserstein_graph_embedding(source_node_embedding)
+		elif graph_embedding_type == "similarity_matrix_eigen_vector":
+			self.build_sim_matrix_eigen_vector_graph_embedding(source_node_embedding)
+		else:
+			logger.error("Graph embedding %s not supported." %(graph_embedding_type))
+
+
+	def build_sim_matrix_eigen_vector_graph_embedding(self, source_node_embedding):
+		"""
+			This method method uses the input source node embedding and calculates
+			a similarity matrix for embeddings of the same graph, and then solves for
+			the eigen vector assosiated with the largest eigen value of that similarity
+			matrix. The eigen vecotr is then used as an embedding of that graph.
+		"""
+		emb_df = pd.DataFrame()
+		for g_obj in tqdm(self.graph_c.graph_collection, desc="Loading embeddings"):
+			if "embedding" not in g_obj:
+				logger.error("You have to run node/structural embedding first.")
+			if source_node_embedding not in g_obj["embedding"]:
+				logger.error("No such selected embedding.")
+			embs = g_obj["embedding"][source_node_embedding]
+			emb_matrix = pd.DataFrame(embs).values
+			sim_matrix = cosine_similarity(emb_matrix, emb_matrix)
+			eigenvalues, eigenvectors = LA.eig(sim_matrix)
+			largest_eigen_vector = eigenvectors[0]
+			largest_eigen_vector = [i.real for i in largest_eigen_vector]
+
+			emb_df["emb_"+str(g_obj["graph_id"])] = largest_eigen_vector 
+		self.graph_embedding[source_node_embedding] = emb_df.values
+		self.graph_embedding_df[source_node_embedding] = emb_df
+
+
+	def build_wasserstein_graph_embedding(self, source_node_embedding):
+		"""
+			This method uses the source node mebdding type and builds the graph
+			embedding using the Wasserstein method.
+			** Note this method does not make sense for classical node embeddings.
+		"""
 		logger.info("Creating incidence matrix")
 		n = self.graph_c.total_numb_of_nodes
 		rows = self.graph_c.graph_id_node_array
@@ -143,9 +183,9 @@ class UGAF:
 		for g_obj in tqdm(self.graph_c.graph_collection, desc="Loading embeddings"):
 			if "embedding" not in g_obj:
 				logger.error("You have to run node/structural embedding first.")
-			if source_embedding not in g_obj["embedding"]:
+			if source_node_embedding not in g_obj["embedding"]:
 				logger.error("No such selected embedding.")
-			embs = g_obj["embedding"][source_embedding]
+			embs = g_obj["embedding"][source_node_embedding]
 			embedding_collection.append(list(embs.values()))
 			graph_ids.append(g_obj["graph_id"])
 
@@ -156,12 +196,12 @@ class UGAF:
 			normalization_power=0.66,
 			random_state=42,
 		).fit_transform(incidence_matrix, vectors=embedding_collection)
-		self.graph_embedding[source_embedding] = graphs_embed
+		self.graph_embedding[source_node_embedding] = graphs_embed
 		df = pd.DataFrame(graphs_embed)
 		self.emb_cols = ["emb_"+str(i) for i in range(df.shape[1])]
 		df.columns = self.emb_cols
 		df["graph_id"] = graph_ids
-		self.graph_embedding_df[source_embedding] = df
+		self.graph_embedding_df[source_node_embedding] = df
 		
 
 	@check_gc_status
