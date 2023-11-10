@@ -29,6 +29,7 @@ class UGAF:
 		self.ml_model = ML_Models()
 		self.gc_status = False
 		self.emb_cols = []
+		self.sim_matrix_largets_eigen_values = []
 		self.graph_embedding = {}
 		self.graph_embedding_df = {}
 		self.graph_emb_dim_reduced = {}
@@ -158,9 +159,14 @@ class UGAF:
 			emb_matrix = pd.DataFrame(embs).values
 			sim_matrix = cosine_similarity(emb_matrix, emb_matrix)
 			eigenvalues, eigenvectors = LA.eig(sim_matrix)
-			largest_eigen_vector = eigenvectors[0]
+			eigenvalues = [i.real for i in eigenvalues]
+			ei_ev_map = {}
+			for ii in range(len(eigenvalues)):
+				ei_ev_map[eigenvalues[ii]] = eigenvectors[ii]
+			max_ei = max(eigenvalues)
+			largest_eigen_vector = ei_ev_map[max_ei]
 			largest_eigen_vector = [i.real for i in largest_eigen_vector]
-
+			self.sim_matrix_largets_eigen_values.append(max_ei)
 			emb_df["emb_"+str(g_obj["graph_id"])] = largest_eigen_vector 
 		self.graph_embedding[source_node_embedding] = emb_df.values
 		self.graph_embedding_df[source_node_embedding] = emb_df
