@@ -111,8 +111,7 @@ class UGAF:
 			embeddings = emb_func(G, **kwargs)
 			g_obj["embedding"][emb_func_name] = embeddings
 			self.graph_c.built_embeddings.add(emb_func_name)
-			exit(0)
-		self.normalize_embedding(embedding_type)
+		self.normalize_embedding(emb_func_name)
 
 
 	@check_gc_status
@@ -201,7 +200,7 @@ class UGAF:
 		graphs_embed = vectorizers.ApproximateWassersteinVectorizer(
 			normalization_power=0.66,
 			random_state=42,
-		).fit_transform(incidence_matrix, vectors=embedding_collection)
+		).fit_transform(incidence_matrix.astype(float), vectors=embedding_collection.astype(float))
 		self.graph_embedding[source_node_embedding] = graphs_embed
 		df = pd.DataFrame(graphs_embed)
 		self.emb_cols = ["emb_"+str(i) for i in range(df.shape[1])]
