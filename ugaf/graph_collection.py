@@ -10,8 +10,6 @@ import numpy as np
 import pandas as pd
 import networkx as nx
 from tqdm import tqdm
-from loguru import logger
-
 
 class Graph_Collection:
 
@@ -29,14 +27,11 @@ class Graph_Collection:
 			This method uses the user configuration to build a collection
 			of graphs object.
 		"""
-		logger.info("===================")
-		logger.info("Reading edge file")
 		edges = pd.read_csv(edge_csv_path)
 		src_nodes = [int(i) for i in edges["node_a"].tolist()]
 		dst_nodes = [int(i) for i in edges["node_b"].tolist()]
 		edgelist = list(zip(src_nodes, dst_nodes))
 		G = nx.from_edgelist(edgelist)
-		logger.info("Parsing graph data into individual graphs")
 		node_graph_map = pd.read_csv(node_graph_map_csv_path)
 		node_graph_map["node_id"] = node_graph_map["node_id"].astype(int)
 		node_graph_map["graph_id"] = node_graph_map["graph_id"].astype(int)
@@ -65,8 +60,6 @@ class Graph_Collection:
 			This method will go through all the sub-graphs and if the number
 			of component of the sub-graph is greater than 1, it will only keep the largest component.
 		"""
-		logger.info("===================")
-		logger.info("Filtering graphs for to contain only the largest connected component")
 		self.total_numb_of_nodes = 0
 		self.graph_id_node_array = []
 		for g_obj in tqdm(self.graph_collection, desc="Filtering graphs:"):
@@ -119,7 +112,6 @@ class Graph_Collection:
 			This function will take as input graph label csv path.
 			It will load the labels and assigns it to graphs in the collection.
 		"""
-		logger.info("Reading and assigning graph labels")
 		graph_labels = pd.read_csv(graph_label_csv_path)
 		self.grpah_labels_df = graph_labels.copy(deep=True)
 		self.graph_label_list_unique = graph_labels["graph_label"].unique().tolist()
@@ -132,4 +124,3 @@ class Graph_Collection:
 			else:
 				g_obj["graph_label"] = "unknown"
 				no_label_counter += 1
-		logger.info("Number of unknown labels: %s" %(str(no_label_counter)))

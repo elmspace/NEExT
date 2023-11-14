@@ -3,7 +3,6 @@
 	Description: 
 """
 
-from loguru import logger
 from sklearn.metrics import f1_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import accuracy_score
@@ -30,7 +29,7 @@ class ML_Models:
 		elif classifier_type == "nn":
 			pass
 		else:
-			logger.error("")
+			print("")
 
 
 	def format_data(self, data_obj):

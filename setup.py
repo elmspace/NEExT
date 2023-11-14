@@ -23,7 +23,6 @@ setuptools.setup(
 	"scipy==1.11.2",
 	"networkx==2.8.8",
 	"node2vec==0.4.6",
-	"loguru==0.7.2",
 	"vectorizers==0.2",
 	"scipy==1.11.2",
 	"numpy==1.25.2",

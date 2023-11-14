@@ -7,7 +7,6 @@
 import random
 import numpy as np
 import networkx as nx
-from loguru import logger
 from node2vec import Node2Vec
 from karateclub import DeepWalk
 
@@ -17,23 +16,6 @@ class Embedding_Engine:
 
 	def __init__(self):
 		pass
-
-
-	def run_embedding(self, G, embedding_type, emb_dim):
-		"""
-			This method runs a builtin embedding on nodes of graph G 
-		"""
-		if embedding_type == "node2vec":
-			embeddings = self.run_node2vec_embedding(G, emb_dim)
-		elif embedding_type == "deepwalk":
-			embeddings = self.run_deepwalk_embedding(G, emb_dim)
-		elif embedding_type == "lsme":
-			embeddings = self.run_lsme_embedding(G, emb_dim)
-		elif embedding_type == "expansion":
-			embeddings = self.run_expansion_embedding(G, emb_dim)
-		else:
-			logger.error("Embedding type selected is not valid.")
-		return embeddings
 
 
 	def run_node2vec_embedding(self, G, emb_dim):
@@ -47,7 +29,7 @@ class Embedding_Engine:
 		return embeddings
 
 
-	def run_lsme_embedding(self, G, emb_dim):
+	def run_lsme_embedding(self, G, emb_dim, node_samples):
 		"""
 			This method takes as input a networkx graph object
 			and runs a LSME structural embedding.
@@ -55,12 +37,13 @@ class Embedding_Engine:
 		nodes = list(G.nodes)
 		embeddings = {}
 		for node in nodes:
-			emb = self.lsme_run_random_walk(node, G, sample_size=50, rw_length=10)
-			if len(emb) < emb_dim:
-				emb += [0] * (emb_dim - len(emb))
-			else:
-				emb = emb[0:emb_dim]
-			embeddings[node] = emb
+			if node in node_samples:
+				emb = self.lsme_run_random_walk(node, G, sample_size=50, rw_length=10)
+				if len(emb) < emb_dim:
+					emb += [0] * (emb_dim - len(emb))
+				else:
+					emb = emb[0:emb_dim]
+				embeddings[node] = emb
 		return embeddings
 
 
@@ -117,7 +100,7 @@ class Embedding_Engine:
 		return embeddings
 
 
-	def run_expansion_embedding(self, G, emb_dim):
+	def run_expansion_embedding(self, G, emb_dim, node_samples):
 		"""
 			This method takes as input a networkx graph object
 			and runs a simple expansion property embedding.
@@ -125,18 +108,19 @@ class Embedding_Engine:
 		embeddings = {}
 		d = (2 * len(G.edges))/len(G.nodes)
 		for node in G.nodes:
-			dist_list = self.get_numb_of_nb_x_hops_away(G, node, emb_dim)
-			norm_list = []
-			for i in range(len(dist_list)):
-				if i == 0:
-					norm_val = 1 * d
-				else:
-					norm_val = dist_list[i] - 1
-					if norm_val <= 0:
-						norm_val = 1
-				norm_list.append(norm_val * d)
-			emb = [dist_list[i]/norm_list[i] for i in range(len(dist_list))]
-			embeddings[node] = emb
+			if node in node_samples:
+				dist_list = self.get_numb_of_nb_x_hops_away(G, node, emb_dim)
+				norm_list = []
+				for i in range(len(dist_list)):
+					if i == 0:
+						norm_val = 1 * d
+					else:
+						norm_val = dist_list[i] - 1
+						if norm_val <= 0:
+							norm_val = 1
+					norm_list.append(norm_val * d)
+				emb = [dist_list[i]/norm_list[i] for i in range(len(dist_list))]
+				embeddings[node] = emb
 		return embeddings
 					
 
