@@ -11,7 +11,7 @@ from node2vec import Node2Vec
 from karateclub import DeepWalk
 
 
-class Embedding_Engine:
+class Node_Embedding_Engine:
 
 
 	def __init__(self):

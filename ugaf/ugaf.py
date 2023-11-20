@@ -8,15 +8,19 @@ import vectorizers
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+import plotly.express as px
 from numpy import linalg as LA
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
-from ugaf.ml_models import ML_Models
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
-from ugaf.graph_collection import Graph_Collection
-from ugaf.feature_engine import Feature_Engine
 from sklearn.metrics.pairwise import cosine_similarity
+
+# Internal Modules
+from ugaf.ml_models import ML_Models
+from ugaf.feature_engine import Feature_Engine
+from ugaf.graph_collection import Graph_Collection
+from ugaf.graph_embedding_engine import Graph_Embedding_Engine
 
 
 class UGAF:
@@ -26,21 +30,13 @@ class UGAF:
 		self.graph_c = Graph_Collection()
 		self.feat_eng = Feature_Engine()
 		self.ml_model = ML_Models()
+		self.g_emb = Graph_Embedding_Engine()
 		self.gc_status = False
 		self.emb_cols = []
 		self.sim_matrix_largets_eigen_values = []
 		self.graph_embedding = {}
 		self.graph_embedding_df = {}
 		self.graph_emb_dim_reduced = {}
-
-
-	def check_gc_status(func):
-		def _check_gc_status(self, *args, **kwargs):
-			if not self.gc_status:
-				raise ValueError("You need to build a graph collection first.")
-				exit(0)
-			func(self, *args, **kwargs)
-		return _check_gc_status
 
 
 	def build_graph_collection(self, edge_csv_path, node_graph_map_csv_path, filter_for_largest_cc=True, reset_node_indices=True):
@@ -56,7 +52,6 @@ class UGAF:
 		self.gc_status = True
 
 
-	@check_gc_status
 	def add_graph_labels(self, graph_label_csv_path):
 		"""
 			This function takes as input a csv file for graph labels and uses the pre-built
@@ -65,7 +60,6 @@ class UGAF:
 		self.graph_c.assign_graph_labels(graph_label_csv_path)
 		
 
-	@check_gc_status
 	def extract_graph_features(self, feature_config):
 		"""
 			This method will use the Feature Engine object to build features
@@ -76,7 +70,25 @@ class UGAF:
 			G = g_obj["graph"]
 			g_obj["graph_features"] = self.feat_eng.build_features(G, feature_config)
 
+
+	def build_graph_embedding(self, graph_embedding_type):
+		"""
+		This method uses the Graph Embedding Engine object to 
+		build a graph embedding for every graph in the graph collection.
+		"""
+		graphs_embed, graph_embedding_df = self.g_emb.build_graph_embedding(graph_embedding_type, graph_c = self.graph_c)
 		
+
+		emb_cols = ["emb_0", "emb_1", "emb_2", "emb_3", "emb_4", "emb_5", "emb_6", "emb_7"]
+		reducer = umap.UMAP()
+		redu_emb = reducer.fit_transform(graph_embedding_df[emb_cols])
+		graph_embedding_df["x"] = redu_emb[:,0]
+		graph_embedding_df["y"] = redu_emb[:,1]
+
+		fig = px.scatter(graph_embedding_df, x="x", y="y", color="graph_id")
+		fig.show()
+
+
 
 
 
