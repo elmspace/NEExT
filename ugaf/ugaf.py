@@ -79,13 +79,13 @@ class UGAF:
 		graphs_embed, graph_embedding_df = self.g_emb.build_graph_embedding(graph_embedding_type, graph_c = self.graph_c)
 		
 
-		emb_cols = ["emb_0", "emb_1", "emb_2", "emb_3", "emb_4", "emb_5", "emb_6", "emb_7"]
+		emb_cols = ["emb_0", "emb_1", "emb_2", "emb_3", "emb_4"]
 		reducer = umap.UMAP()
 		redu_emb = reducer.fit_transform(graph_embedding_df[emb_cols])
 		graph_embedding_df["x"] = redu_emb[:,0]
 		graph_embedding_df["y"] = redu_emb[:,1]
 
-		fig = px.scatter(graph_embedding_df, x="x", y="y", color="graph_id")
+		fig = px.scatter(graph_embedding_df, x="x", y="y", color="graph_id", size=[4]*len(graph_embedding_df))
 		fig.show()
 
 

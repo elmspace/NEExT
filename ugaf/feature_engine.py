@@ -5,13 +5,18 @@
 	including structural, density, ...
 """
 
+# External Libraries
 import umap
 import json
 import random
 import numpy as np
 import pandas as pd
+import networkx as nx
 from tqdm import tqdm
 from sklearn.decomposition import PCA
+
+# Internal Libraries
+from ugaf.helper_functions import get_nodes_x_hops_away
 from ugaf.node_embedding_engine import Node_Embedding_Engine
 
 
@@ -23,6 +28,9 @@ class Feature_Engine:
 		self.feature_functions = {}
 		self.feature_functions["lsme"] = self.build_lsme
 		self.feature_functions["basic_expansion"] = self.build_basic_expansion
+		self.feature_functions["page_rank"] = self.build_page_rank
+		self.feature_functions["degree_centrality"] = self.build_degree_centrality
+		self.feature_functions["closeness_centrality"] = self.build_closeness_centrality
 
 
 	def load_config(self, config_file_path):
@@ -79,6 +87,75 @@ class Feature_Engine:
 			embs_reduced = reducer.fit_transform(embs)
 			for idx, key_val in enumerate(emb_keys):
 				feature_collection["global_embedding"][key_val] = list(embs_reduced[idx])
+		return feature_collection
+
+
+	def build_page_rank(self, feature_collection, G, config, func_name, node_samples):
+		"""
+			This method will compute page rank for every node up to 
+			emb_dim hops away neighbors.
+		"""
+		emb_dim = int(config["emb_dim"])
+		pr = nx.pagerank(G, alpha=0.9)
+		embs = {}
+		for node in list(G.nodes):
+			embs[node] = []
+			nbs = get_nodes_x_hops_away(G, node, max_hop_length=emb_dim)
+			embs[node].append(pr[node])
+			for i in range(1, emb_dim+1):
+				if i in nbs:
+					nbs_pr = [pr[j] for j in nbs[i]]
+					embs[node].append(sum(nbs_pr)/len(nbs_pr))
+				else:
+					embs[node].append(0.0)
+		feature_collection["graph_features"][func_name] = {}
+		feature_collection["graph_features"][func_name]["embs"] = embs
+		return feature_collection
+
+
+	def build_degree_centrality(self, feature_collection, G, config, func_name, node_samples):
+		"""
+			This method will compute degree centrality for every node up to 
+			emb_dim hops away neighbors.
+		"""
+		emb_dim = int(config["emb_dim"])
+		pr = nx.degree_centrality(G)
+		embs = {}
+		for node in list(G.nodes):
+			embs[node] = []
+			nbs = get_nodes_x_hops_away(G, node, max_hop_length=emb_dim)
+			embs[node].append(pr[node])
+			for i in range(1, emb_dim+1):
+				if i in nbs:
+					nbs_pr = [pr[j] for j in nbs[i]]
+					embs[node].append(sum(nbs_pr)/len(nbs_pr))
+				else:
+					embs[node].append(0.0)
+		feature_collection["graph_features"][func_name] = {}
+		feature_collection["graph_features"][func_name]["embs"] = embs
+		return feature_collection
+
+
+	def build_closeness_centrality(self, feature_collection, G, config, func_name, node_samples):
+		"""
+			This method will compute closeness centrality for every node up to 
+			emb_dim hops away neighbors.
+		"""
+		emb_dim = int(config["emb_dim"])
+		pr = nx.closeness_centrality(G)
+		embs = {}
+		for node in list(G.nodes):
+			embs[node] = []
+			nbs = get_nodes_x_hops_away(G, node, max_hop_length=emb_dim)
+			embs[node].append(pr[node])
+			for i in range(1, emb_dim+1):
+				if i in nbs:
+					nbs_pr = [pr[j] for j in nbs[i]]
+					embs[node].append(sum(nbs_pr)/len(nbs_pr))
+				else:
+					embs[node].append(0.0)
+		feature_collection["graph_features"][func_name] = {}
+		feature_collection["graph_features"][func_name]["embs"] = embs
 		return feature_collection
 
 
