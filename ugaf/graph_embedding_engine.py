@@ -36,14 +36,8 @@ class Graph_Embedding_Engine:
 		rows = graph_c.graph_id_node_array
 		cols = np.arange(n)
 		incidence_matrix = scipy.sparse.csr_matrix((np.repeat(1.0,n).astype(np.float32), (rows, cols)))
-		
-		embedding_collection = []
-		graph_ids = []
-		for g_obj in tqdm(graph_c.graph_collection, desc="Loading embeddings"):
-			embs = g_obj["graph_features"]["global_embedding"]
-			embedding_collection.append(list(embs.values()))
-			graph_ids.append(g_obj["graph_id"])
-
+		embedding_collection = graph_c.global_embeddings[graph_c.global_embeddings_cols].values
+		graph_ids = graph_c.global_embeddings["graph_id"].unique().tolist()
 		embedding_collection = np.array(embedding_collection, dtype=object)
 		embedding_collection = np.vstack(embedding_collection)
 		graphs_embed = vectorizers.ApproximateWassersteinVectorizer(

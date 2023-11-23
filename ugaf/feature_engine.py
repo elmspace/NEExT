@@ -38,13 +38,13 @@ class Feature_Engine:
 		return config
 
 
-	def build_features(self, G, config_file_path):
+	def build_features(self, G, graph_id, config_file_path):
 		config = self.load_config(config_file_path)
 		node_samples = self.sample_graph(G, config)
 		feature_collection = {}
 		feature_collection["graph_features"] = {}
 		for feature_obj in config["features"]:
-			feature_collection = self.feature_functions[feature_obj["feature_name"]](feature_collection, G, feature_obj, feature_obj["type"], node_samples)
+			feature_collection = self.feature_functions[feature_obj["feature_name"]](feature_collection, G, feature_obj, feature_obj["type"], node_samples, graph_id)
 		feature_collection = self.build_gloabal_embedding(feature_collection, node_samples, config)
 		return feature_collection
 
@@ -69,27 +69,23 @@ class Feature_Engine:
 			This method will use the features built on the graph to construct
 			a global embedding for the nodes of the graph.
 		"""
-		feature_collection["global_embedding"] = {}
+		
+		global_emb_df = pd.DataFrame()
 		if config["gloabl_embedding"]["type"] == "concat":
-			for node in node_samples:
-				feature_collection["global_embedding"][node] = []
-				for func_name in config["gloabl_embedding"]["emb_features"]:
-					if "embs" in feature_collection["graph_features"][func_name]:
-						feature_collection["global_embedding"][node] += feature_collection["graph_features"][func_name]["embs"][node]
+			for func_name in config["gloabl_embedding"]["emb_features"]:
+				if "embs" in feature_collection["graph_features"][func_name]:
+					embs = feature_collection["graph_features"][func_name]["embs"]
+					if global_emb_df.empty:
+						global_emb_df = embs.copy(deep=True)
+					else:
+						global_emb_df = global_emb_df.merge(embs, on=["node_id", "graph_id"], how="inner")
+			feature_collection["global_embedding"] = global_emb_df
 		else:
 			raise ValueError("Gloabl embedding type is not supported.")
-		# Reduce the dimension of the gloabal embedding (if flag is yes)
-		if config["gloabl_embedding"]["compression"]["flag"] == "yes":
-			emb_keys = list(feature_collection["global_embedding"].keys())
-			embs = np.array([value for value in feature_collection["global_embedding"].values()])
-			reducer = PCA(n_components=config["gloabl_embedding"]["compression"]["size"])
-			embs_reduced = reducer.fit_transform(embs)
-			for idx, key_val in enumerate(emb_keys):
-				feature_collection["global_embedding"][key_val] = list(embs_reduced[idx])
 		return feature_collection
 
 
-	def build_structural_node_features(self, feature_collection, G, config, func_name, node_samples):
+	def build_structural_node_features(self, feature_collection, G, config, func_name, node_samples, graph_id):
 		"""
 			This method will compute structural node feature for every node up to 
 			emb_dim hops away neighbors.
@@ -108,36 +104,50 @@ class Feature_Engine:
 		else:
 			raise ValueError("The selected structural feature is not supported.")
 		emb_dim = int(config["emb_dim"])
-		embs = {}
+		nodes = []
+		features = []
 		for node in list(G.nodes):
-			embs[node] = []
-			nbs = get_nodes_x_hops_away(G, node, max_hop_length=emb_dim)
-			embs[node].append(srtct_feat[node])
-			for i in range(1, emb_dim+1):
-				if i in nbs:
-					nbs_pr = [srtct_feat[j] for j in nbs[i]]
-					embs[node].append(sum(nbs_pr)/len(nbs_pr))
-				else:
-					embs[node].append(0.0)
+			if node in node_samples:
+				nodes.append(node)
+				feat_vect = []
+				nbs = get_nodes_x_hops_away(G, node, max_hop_length=emb_dim)
+				feat_vect.append(srtct_feat[node])
+				for i in range(1, emb_dim):
+					if i in nbs:
+						nbs_pr = [srtct_feat[j] for j in nbs[i]]
+						feat_vect.append(sum(nbs_pr)/len(nbs_pr))
+					else:
+						feat_vect.append(0.0)
+				features.append(feat_vect)
+		# Construct embedding df
+		embs = pd.DataFrame(features)
+		emb_cols = ["emb_"+func_name+"_"+str(i) for i in range(embs.shape[1])]
+		embs.columns = emb_cols
+		embs.insert(0, "node_id", nodes)
+		embs.insert(1, "graph_id", graph_id)
 		feature_collection["graph_features"][func_name] = {}
 		feature_collection["graph_features"][func_name]["embs"] = embs
 		return feature_collection
 
 
-	def build_lsme(self, feature_collection, G, config, func_name, node_samples):
+	def build_lsme(self, feature_collection, G, config, func_name, node_samples, graph_id):
 		emb_dim = config["emb_dim"]
 		embs = self.node_emb_engine.run_lsme_embedding(G, emb_dim, node_samples)
+		embs.insert(1, "graph_id", graph_id)
 		feature_collection["graph_features"][func_name] = {}
 		feature_collection["graph_features"][func_name]["embs"] = embs
 		return feature_collection
 
 
-	def build_basic_expansion(self, feature_collection, G, config, func_name, node_samples):
+	def build_basic_expansion(self, feature_collection, G, config, func_name, node_samples, graph_id):
 		emb_dim = config["emb_dim"]
 		embs = self.node_emb_engine.run_expansion_embedding(G, emb_dim, node_samples)
+		embs.insert(1, "graph_id", graph_id)
 		feature_collection["graph_features"][func_name] = {}
 		feature_collection["graph_features"][func_name]["embs"] = embs
 		return feature_collection
+
+
 
 		
 

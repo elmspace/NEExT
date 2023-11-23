@@ -9,11 +9,15 @@
 			"feature_name" : "structural_node_feature",
 			"type" : "page_rank",
 			"emb_dim" : 4
+		},
+		{
+			"feature_name" : "structural_node_feature",
+			"type" : "degree_centrality",
+			"emb_dim" : 4
 		}
 	],
 	"gloabl_embedding" : {
 		"type" : "concat",
-		"emb_features" : ["page_rank"],
-		"compression" : {"flag": "no", "size":16}
+		"emb_features" : ["page_rank", "degree_centrality"]
 	}
 }

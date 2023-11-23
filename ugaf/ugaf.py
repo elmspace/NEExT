@@ -63,7 +63,45 @@ class UGAF:
 		"""
 		for g_obj in tqdm(self.graph_c.graph_collection, desc="Building features"):
 			G = g_obj["graph"]
-			g_obj["graph_features"] = self.feat_eng.build_features(G, feature_config)
+			graph_id = g_obj["graph_id"]
+			g_obj["graph_features"] = self.feat_eng.build_features(G, graph_id, feature_config)
+		self.standardize_graph_features_globaly()
+
+
+	def standardize_graph_features_globaly(self):
+		"""
+			This method will standardize the graph features across all graphs.
+		"""
+		all_graph_feats = pd.DataFrame()
+		for g_obj in tqdm(self.graph_c.graph_collection, desc="Building features"):
+			df = g_obj["graph_features"]["global_embedding"]
+			if all_graph_feats.empty:
+				all_graph_feats = df.copy(deep=True)
+			else:
+				all_graph_feats = pd.concat([all_graph_feats, df])
+
+		# Grab graph feature embedding columns
+		emb_cols = []
+		for col in all_graph_feats.columns.tolist():
+			if "emb_" in col:
+				emb_cols.append(col)
+		# Standardize the embedding
+		node_ids = all_graph_feats["node_id"].tolist()
+		graph_ids = all_graph_feats["graph_id"].tolist()
+		emb_df = all_graph_feats[emb_cols].copy(deep=True)
+		# Normalize data
+		scaler = StandardScaler()
+		emb_df = pd.DataFrame(scaler.fit_transform(emb_df))
+		emb_df.columns = emb_cols
+		emb_df.insert(0, "node_id", node_ids)
+		emb_df.insert(1, "graph_id", graph_ids)
+		# Keep a collective global embedding
+		self.graph_c.global_embeddings = emb_df.copy(deep=True)
+		self.graph_c.global_embeddings_cols = emb_cols
+		# Re-assign global embeddings to each graph
+		for g_obj in tqdm(self.graph_c.graph_collection, desc="Building features"):
+			df = emb_df[emb_df["graph_id"] == g_obj["graph_id"]].copy(deep=True)
+			g_obj["graph_features"]["global_embedding"] = df
 
 
 	def build_graph_embedding(self, graph_embedding_type):

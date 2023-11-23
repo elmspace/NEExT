@@ -7,6 +7,7 @@
 # External Libraries
 import random
 import numpy as np
+import pandas as pd
 import networkx as nx
 from node2vec import Node2Vec
 from karateclub import DeepWalk
@@ -38,15 +39,21 @@ class Node_Embedding_Engine:
 			and runs a LSME structural embedding.
 		"""
 		nodes = list(G.nodes)
-		embeddings = {}
+		embeddings = []
+		node_list = []
 		for node in nodes:
 			if node in node_samples:
+				node_list.append(node)
 				emb = self.lsme_run_random_walk(node, G, sample_size=50, rw_length=10)
 				if len(emb) < emb_dim:
 					emb += [0] * (emb_dim - len(emb))
 				else:
 					emb = emb[0:emb_dim]
-				embeddings[node] = emb
+				embeddings.append(emb)
+		embeddings = pd.DataFrame(embeddings)
+		emb_cols = ["emb_lsme_"+str(i) for i in range(embeddings.shape[1])]
+		embeddings.columns = emb_cols
+		embeddings.insert(0, "node_id", node_list)
 		return embeddings
 
 
@@ -108,10 +115,12 @@ class Node_Embedding_Engine:
 			This method takes as input a networkx graph object
 			and runs a simple expansion property embedding.
 		"""
-		embeddings = {}
+		embeddings = []
+		node_list = []
 		d = (2 * len(G.edges))/len(G.nodes)
 		for node in G.nodes:
 			if node in node_samples:
+				node_list.append(node)
 				dist_list = get_numb_of_nb_x_hops_away(G, node, emb_dim)
 				norm_list = []
 				for i in range(len(dist_list)):
@@ -123,7 +132,11 @@ class Node_Embedding_Engine:
 							norm_val = 1
 					norm_list.append(norm_val * d)
 				emb = [dist_list[i]/norm_list[i] for i in range(len(dist_list))]
-				embeddings[node] = emb
+				embeddings.append(emb)
+		embeddings = pd.DataFrame(embeddings)
+		emb_cols = ["emb_basic_expansion_"+str(i) for i in range(embeddings.shape[1])]
+		embeddings.columns = emb_cols
+		embeddings.insert(0, "node_id", node_list)
 		return embeddings
 					
 
