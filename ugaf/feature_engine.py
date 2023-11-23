@@ -42,7 +42,7 @@ class Feature_Engine:
 		config = self.load_config(config_file_path)
 		node_samples = self.sample_graph(G, config)
 		feature_collection = {}
-		feature_collection["graph_features"] = {}
+		feature_collection["features"] = {}
 		for feature_obj in config["features"]:
 			feature_collection = self.feature_functions[feature_obj["feature_name"]](feature_collection, G, feature_obj, feature_obj["type"], node_samples, graph_id)
 		feature_collection = self.build_gloabal_embedding(feature_collection, node_samples, config)
@@ -73,8 +73,8 @@ class Feature_Engine:
 		global_emb_df = pd.DataFrame()
 		if config["gloabl_embedding"]["type"] == "concat":
 			for func_name in config["gloabl_embedding"]["emb_features"]:
-				if "embs" in feature_collection["graph_features"][func_name]:
-					embs = feature_collection["graph_features"][func_name]["embs"]
+				if "embs" in feature_collection["features"][func_name]:
+					embs = feature_collection["features"][func_name]["embs"]
 					if global_emb_df.empty:
 						global_emb_df = embs.copy(deep=True)
 					else:
@@ -125,26 +125,37 @@ class Feature_Engine:
 		embs.columns = emb_cols
 		embs.insert(0, "node_id", nodes)
 		embs.insert(1, "graph_id", graph_id)
-		feature_collection["graph_features"][func_name] = {}
-		feature_collection["graph_features"][func_name]["embs"] = embs
+		feature_collection["features"][func_name] = {}
+		feature_collection["features"][func_name]["embs"] = embs
+		feature_collection["features"][func_name]["embs_cols"] = emb_cols
 		return feature_collection
 
 
 	def build_lsme(self, feature_collection, G, config, func_name, node_samples, graph_id):
 		emb_dim = config["emb_dim"]
 		embs = self.node_emb_engine.run_lsme_embedding(G, emb_dim, node_samples)
+		emb_cols = []
+		for col in embs.columns.tolist():
+			if "emb" in col:
+				emb_cols.append(col)
 		embs.insert(1, "graph_id", graph_id)
-		feature_collection["graph_features"][func_name] = {}
-		feature_collection["graph_features"][func_name]["embs"] = embs
+		feature_collection["features"][func_name] = {}
+		feature_collection["features"][func_name]["embs"] = embs
+		feature_collection["features"][func_name]["embs_cols"] = emb_cols
 		return feature_collection
 
 
 	def build_basic_expansion(self, feature_collection, G, config, func_name, node_samples, graph_id):
 		emb_dim = config["emb_dim"]
 		embs = self.node_emb_engine.run_expansion_embedding(G, emb_dim, node_samples)
+		emb_cols = []
+		for col in embs.columns.tolist():
+			if "emb" in col:
+				emb_cols.append(col)
 		embs.insert(1, "graph_id", graph_id)
-		feature_collection["graph_features"][func_name] = {}
-		feature_collection["graph_features"][func_name]["embs"] = embs
+		feature_collection["features"][func_name] = {}
+		feature_collection["features"][func_name]["embs"] = embs
+		feature_collection["features"][func_name]["embs_cols"] = emb_cols
 		return feature_collection
 
 

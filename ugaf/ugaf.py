@@ -99,10 +99,53 @@ class UGAF:
 		self.graph_c.global_embeddings = emb_df.copy(deep=True)
 		self.graph_c.global_embeddings_cols = emb_cols
 		# Re-assign global embeddings to each graph
-		for g_obj in tqdm(self.graph_c.graph_collection, desc="Building features"):
+		for g_obj in tqdm(self.graph_c.graph_collection, desc="Updating features"):
 			df = emb_df[emb_df["graph_id"] == g_obj["graph_id"]].copy(deep=True)
 			g_obj["graph_features"]["global_embedding"] = df
 
+
+	def compute_similarity_matrix_stats(self, use_labels=False):
+		"""
+			This method will run through the features computes on the graph and computes
+			similarity matrices on those features per graph.
+		"""
+		eigen_val_df = pd.DataFrame()
+		for g_obj in tqdm(self.graph_c.graph_collection, desc="Computing similarity stats"):
+			feature_list = []
+			eigen_val_list = []
+			graph_label = g_obj["graph_id"]
+			if use_labels:
+				graph_label = self.graph_c.grpah_labels_df[self.graph_c.grpah_labels_df["graph_id"] == g_obj["graph_id"]].iloc[0]["graph_label"]
+
+			for feature in g_obj["graph_features"]["features"]:
+				
+				data = self.graph_c.global_embeddings[self.graph_c.global_embeddings["graph_id"] == g_obj["graph_id"]]
+				embs_cols = g_obj["graph_features"]["features"][feature]["embs_cols"]
+				
+				data = data[embs_cols].values
+			
+				sim_matrix = cosine_similarity(data, data)
+
+				eigenvalues, eigenvectors = LA.eig(sim_matrix)
+				eigenvalues = [i.real for i in eigenvalues]
+
+				max_ei = max(eigenvalues)
+
+				feature_list.append(feature)
+				eigen_val_list.append(max_ei)
+
+			df = pd.DataFrame()
+			df["feature"] = feature_list
+			df["eigen_val"] = eigen_val_list
+			df.insert(0, "graph_label", graph_label)
+
+			if eigen_val_df.empty:
+				eigen_val_df = df.copy(deep=True)
+			else:
+				eigen_val_df = pd.concat([eigen_val_df, df])
+
+		fig = px.scatter(eigen_val_df, x="graph_label", y="eigen_val", color="feature")
+		fig.show()
 
 	def build_graph_embedding(self, graph_embedding_type):
 		"""
