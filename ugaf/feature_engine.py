@@ -28,9 +28,8 @@ class Feature_Engine:
 		self.feature_functions = {}
 		self.feature_functions["lsme"] = self.build_lsme
 		self.feature_functions["basic_expansion"] = self.build_basic_expansion
-		self.feature_functions["page_rank"] = self.build_page_rank
-		self.feature_functions["degree_centrality"] = self.build_degree_centrality
-		self.feature_functions["closeness_centrality"] = self.build_closeness_centrality
+		self.feature_functions["structural_node_feature"] = self.build_structural_node_features
+		self.supported_structural_node_features = ["page_rank", "degree_centrality", "closeness_centrality", "load_centrality", "eigenvector_centrality"]
 
 
 	def load_config(self, config_file_path):
@@ -44,8 +43,8 @@ class Feature_Engine:
 		node_samples = self.sample_graph(G, config)
 		feature_collection = {}
 		feature_collection["graph_features"] = {}
-		for func_name in config["features"]:
-			feature_collection = self.feature_functions[func_name](feature_collection, G, config["features"][func_name], func_name, node_samples)
+		for feature_obj in config["features"]:
+			feature_collection = self.feature_functions[feature_obj["feature_name"]](feature_collection, G, feature_obj, feature_obj["type"], node_samples)
 		feature_collection = self.build_gloabal_embedding(feature_collection, node_samples, config)
 		return feature_collection
 
@@ -74,7 +73,7 @@ class Feature_Engine:
 		if config["gloabl_embedding"]["type"] == "concat":
 			for node in node_samples:
 				feature_collection["global_embedding"][node] = []
-				for func_name in config["features"]:
+				for func_name in config["gloabl_embedding"]["emb_features"]:
 					if "embs" in feature_collection["graph_features"][func_name]:
 						feature_collection["global_embedding"][node] += feature_collection["graph_features"][func_name]["embs"][node]
 		else:
@@ -90,67 +89,33 @@ class Feature_Engine:
 		return feature_collection
 
 
-	def build_page_rank(self, feature_collection, G, config, func_name, node_samples):
+	def build_structural_node_features(self, feature_collection, G, config, func_name, node_samples):
 		"""
-			This method will compute page rank for every node up to 
+			This method will compute structural node feature for every node up to 
 			emb_dim hops away neighbors.
 		"""
+		structural_feature_type = config["type"]
+		if structural_feature_type == "page_rank":
+			srtct_feat = nx.pagerank(G, alpha=0.9)
+		elif structural_feature_type == "degree_centrality":
+			srtct_feat = nx.degree_centrality(G)
+		elif structural_feature_type == "closeness_centrality":
+			srtct_feat = nx.closeness_centrality(G)
+		elif structural_feature_type == "load_centrality":
+			srtct_feat = nx.load_centrality(G)
+		elif structural_feature_type == "eigenvector_centrality":
+			srtct_feat = nx.eigenvector_centrality(G, max_iter=1000, tol=1e-03)
+		else:
+			raise ValueError("The selected structural feature is not supported.")
 		emb_dim = int(config["emb_dim"])
-		pr = nx.pagerank(G, alpha=0.9)
 		embs = {}
 		for node in list(G.nodes):
 			embs[node] = []
 			nbs = get_nodes_x_hops_away(G, node, max_hop_length=emb_dim)
-			embs[node].append(pr[node])
+			embs[node].append(srtct_feat[node])
 			for i in range(1, emb_dim+1):
 				if i in nbs:
-					nbs_pr = [pr[j] for j in nbs[i]]
-					embs[node].append(sum(nbs_pr)/len(nbs_pr))
-				else:
-					embs[node].append(0.0)
-		feature_collection["graph_features"][func_name] = {}
-		feature_collection["graph_features"][func_name]["embs"] = embs
-		return feature_collection
-
-
-	def build_degree_centrality(self, feature_collection, G, config, func_name, node_samples):
-		"""
-			This method will compute degree centrality for every node up to 
-			emb_dim hops away neighbors.
-		"""
-		emb_dim = int(config["emb_dim"])
-		pr = nx.degree_centrality(G)
-		embs = {}
-		for node in list(G.nodes):
-			embs[node] = []
-			nbs = get_nodes_x_hops_away(G, node, max_hop_length=emb_dim)
-			embs[node].append(pr[node])
-			for i in range(1, emb_dim+1):
-				if i in nbs:
-					nbs_pr = [pr[j] for j in nbs[i]]
-					embs[node].append(sum(nbs_pr)/len(nbs_pr))
-				else:
-					embs[node].append(0.0)
-		feature_collection["graph_features"][func_name] = {}
-		feature_collection["graph_features"][func_name]["embs"] = embs
-		return feature_collection
-
-
-	def build_closeness_centrality(self, feature_collection, G, config, func_name, node_samples):
-		"""
-			This method will compute closeness centrality for every node up to 
-			emb_dim hops away neighbors.
-		"""
-		emb_dim = int(config["emb_dim"])
-		pr = nx.closeness_centrality(G)
-		embs = {}
-		for node in list(G.nodes):
-			embs[node] = []
-			nbs = get_nodes_x_hops_away(G, node, max_hop_length=emb_dim)
-			embs[node].append(pr[node])
-			for i in range(1, emb_dim+1):
-				if i in nbs:
-					nbs_pr = [pr[j] for j in nbs[i]]
+					nbs_pr = [srtct_feat[j] for j in nbs[i]]
 					embs[node].append(sum(nbs_pr)/len(nbs_pr))
 				else:
 					embs[node].append(0.0)

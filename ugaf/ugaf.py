@@ -31,12 +31,8 @@ class UGAF:
 		self.feat_eng = Feature_Engine()
 		self.ml_model = ML_Models()
 		self.g_emb = Graph_Embedding_Engine()
-		self.gc_status = False
 		self.emb_cols = []
-		self.sim_matrix_largets_eigen_values = []
 		self.graph_embedding = {}
-		self.graph_embedding_df = {}
-		self.graph_emb_dim_reduced = {}
 
 
 	def build_graph_collection(self, edge_csv_path, node_graph_map_csv_path, filter_for_largest_cc=True, reset_node_indices=True):
@@ -49,7 +45,6 @@ class UGAF:
 			self.graph_c.filter_collection_for_largest_connected_component()
 		if reset_node_indices:
 			self.graph_c.reset_node_indices()
-		self.gc_status = True
 
 
 	def add_graph_labels(self, graph_label_csv_path):
@@ -73,19 +68,81 @@ class UGAF:
 
 	def build_graph_embedding(self, graph_embedding_type):
 		"""
-		This method uses the Graph Embedding Engine object to 
-		build a graph embedding for every graph in the graph collection.
+			This method uses the Graph Embedding Engine object to 
+			build a graph embedding for every graph in the graph collection.
 		"""
-		graphs_embed, graph_embedding_df = self.g_emb.build_graph_embedding(graph_embedding_type, graph_c = self.graph_c)
-		
+		graph_embedding, graph_embedding_df = self.g_emb.build_graph_embedding(graph_embedding_type, graph_c = self.graph_c)
+		self.graph_embedding = {}
+		self.graph_embedding["graph_embedding"] = graph_embedding
+		self.graph_embedding["graph_embedding_df"] = graph_embedding_df
 
-		emb_cols = ["emb_0", "emb_1", "emb_2", "emb_3", "emb_4"]
+
+	def visualize_graph_embedding(self, color_by_label=False):
+		"""
+			This method uses the the graph embedding and UMAP to
+			visulize the embeddings in two dimensions. It can also color the
+			points if there are labels available for the graph.
+		"""
+		if color_by_label:
+			data = self.graph_embedding["graph_embedding_df"].merge(self.graph_c.grpah_labels_df, on="graph_id", how="inner")
+		else:
+			data = self.graph_embedding["graph_embedding_df"].copy(deep=True)
+		# Identify embedding colomns
+		emb_cols = []
+		for col in data.columns.tolist():
+			if "emb" in col:
+				emb_cols.append(col)
+		# Perform dimensionality reduction
 		reducer = umap.UMAP()
-		redu_emb = reducer.fit_transform(graph_embedding_df[emb_cols])
-		graph_embedding_df["x"] = redu_emb[:,0]
-		graph_embedding_df["y"] = redu_emb[:,1]
-
-		fig = px.scatter(graph_embedding_df, x="x", y="y", color="graph_id", size=[4]*len(graph_embedding_df))
+		redu_emb = reducer.fit_transform(data[emb_cols])
+		data["x"] = redu_emb[:,0]
+		data["y"] = redu_emb[:,1]
+		# Generate plotly figures
+		if color_by_label:
+			fig = px.scatter(data, x="x", y="y", color="graph_label", size=[4]*len(data))
+		else:
+			fig = px.scatter(data, x="x", y="y", size=[4]*len(data))
+		# Update figure layout
+		fig.update_layout(paper_bgcolor='white')
+		fig.update_layout(plot_bgcolor='white')
+		fig.update_yaxes(color='black')
+		fig.update_layout(
+			yaxis = dict(
+				title = "Dim-1",
+				zeroline=True,
+				showline = True,
+				linecolor = 'black',
+				mirror=True,
+				linewidth = 2
+			),
+			xaxis = dict(
+				title = 'Dim-2',
+				mirror=True,
+				zeroline=True,
+				showline = True,
+				linecolor = 'black',
+				linewidth = 2,
+				tickangle = 90,
+			),
+			width=500,
+			height=500,
+			font=dict(
+			size=15,
+			color="black")
+				
+		)
+		fig.update_layout(showlegend=True)
+		fig.update_layout(legend=dict(
+			yanchor="bottom",
+			y=0.01,
+			xanchor="left",
+			x=0.78,
+			bordercolor="Black",
+			borderwidth=1
+		))
+		fig.update_xaxes(showgrid=False, gridwidth=0.5, gridcolor='#e3e1e1')
+		fig.update_yaxes(showgrid=False, gridwidth=0.5, gridcolor='grey')
+		fig.update_traces(marker_line_color='black', marker_line_width=1.5, opacity=0.6)
 		fig.show()
 
 

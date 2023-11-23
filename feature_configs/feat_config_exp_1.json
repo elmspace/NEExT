@@ -4,14 +4,16 @@
 		"flag" : "no",
 		"sample_fraction" : 0.1
 	},
-	"features" : {
-		"closeness_centrality" : {
+	"features" : [
+		{
+			"feature_name" : "structural_node_feature",
+			"type" : "page_rank",
 			"emb_dim" : 4
 		}
-	},
+	],
 	"gloabl_embedding" : {
 		"type" : "concat",
-		"emb_features" : ["closeness_centrality"],
+		"emb_features" : ["page_rank"],
 		"compression" : {"flag": "no", "size":16}
 	}
 }
