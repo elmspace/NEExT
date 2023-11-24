@@ -33,6 +33,7 @@ class UGAF:
 		self.g_emb = Graph_Embedding_Engine()
 		self.emb_cols = []
 		self.graph_embedding = {}
+		self.similarity_matrix_stats = {}
 
 
 	def build_graph_collection(self, edge_csv_path, node_graph_map_csv_path, filter_for_largest_cc=True, reset_node_indices=True):
@@ -104,19 +105,16 @@ class UGAF:
 			g_obj["graph_features"]["global_embedding"] = df
 
 
-	def compute_similarity_matrix_stats(self, use_labels=False):
+	def compute_similarity_matrix_stats(self):
 		"""
 			This method will run through the features computes on the graph and computes
 			similarity matrices on those features per graph.
 		"""
-		eigen_val_df = pd.DataFrame()
+		res_df = pd.DataFrame()
 		for g_obj in tqdm(self.graph_c.graph_collection, desc="Computing similarity stats"):
 			feature_list = []
 			eigen_val_list = []
-			graph_label = g_obj["graph_id"]
-			if use_labels:
-				graph_label = self.graph_c.grpah_labels_df[self.graph_c.grpah_labels_df["graph_id"] == g_obj["graph_id"]].iloc[0]["graph_label"]
-
+			sim_mean_list = []			
 			for feature in g_obj["graph_features"]["features"]:
 				
 				data = self.graph_c.global_embeddings[self.graph_c.global_embeddings["graph_id"] == g_obj["graph_id"]]
@@ -133,19 +131,23 @@ class UGAF:
 
 				feature_list.append(feature)
 				eigen_val_list.append(max_ei)
+				sim_mean_list.append(sim_matrix.mean())
 
 			df = pd.DataFrame()
 			df["feature"] = feature_list
-			df["eigen_val"] = eigen_val_list
-			df.insert(0, "graph_label", graph_label)
+			df["largest_eigen_value"] = eigen_val_list
+			df["similarity_matrix_mean"] = sim_mean_list
+			df.insert(0, "graph_id", g_obj["graph_id"])
 
-			if eigen_val_df.empty:
-				eigen_val_df = df.copy(deep=True)
+			if res_df.empty:
+				res_df = df.copy(deep=True)
 			else:
-				eigen_val_df = pd.concat([eigen_val_df, df])
+				res_df = pd.concat([res_df, df])
 
-		fig = px.scatter(eigen_val_df, x="graph_label", y="eigen_val", color="feature")
-		fig.show()
+		self.similarity_matrix_stats["data"] = res_df
+		self.similarity_matrix_stats["metrics"] = ["largest_eigen_value", "similarity_matrix_mean"]
+		self.similarity_matrix_stats["metrics_pretty_name"] = ["Largest EigenValue", "Similarity Matrix Mean"]
+
 
 	def build_graph_embedding(self, graph_embedding_type):
 		"""
@@ -203,9 +205,8 @@ class UGAF:
 				showline = True,
 				linecolor = 'black',
 				linewidth = 2,
-				tickangle = 90,
 			),
-			width=500,
+			width=600,
 			height=500,
 			font=dict(
 			size=15,
@@ -228,5 +229,66 @@ class UGAF:
 
 
 
+
+	def visualize_similarity_matrix_stats(self, color_by_label=False):
+
+		for idx, metric in enumerate(self.similarity_matrix_stats["metrics"]):
+
+			y_name = self.similarity_matrix_stats["metrics_pretty_name"][idx]
+
+			if color_by_label:
+				data = self.similarity_matrix_stats["data"].merge(self.graph_c.grpah_labels_df, on="graph_id", how="inner")
+			else:
+				data = self.similarity_matrix_stats["data"].copy(deep=True)
+
+			# Generate eigen value plotly figures
+			if color_by_label:
+				fig = px.scatter(data, x="graph_label", y=metric)
+				x_name = "Graph Label"
+			else:
+				fig = px.scatter(data, x="graph_id", y=metric)
+				x_name = "Graph ID"
+
+			# Update figure layout
+			fig.update_layout(paper_bgcolor='white')
+			fig.update_layout(plot_bgcolor='white')
+			fig.update_yaxes(color='black')
+			fig.update_layout(
+				yaxis = dict(
+					title = y_name,
+					zeroline=True,
+					showline = True,
+					linecolor = 'black',
+					mirror=True,
+					linewidth = 2
+				),
+				xaxis = dict(
+					title = x_name,
+					mirror=True,
+					zeroline=True,
+					showline = True,
+					linecolor = 'black',
+					linewidth = 2,
+				),
+				width=600,
+				height=500,
+				font=dict(
+				size=15,
+				color="black")
+					
+			)
+			fig.update_layout(showlegend=True)
+			fig.update_layout(legend=dict(
+				yanchor="bottom",
+				y=0.01,
+				xanchor="left",
+				x=0.78,
+				bordercolor="Black",
+				borderwidth=1
+			))
+			fig.update_xaxes(showgrid=False, gridwidth=0.5, gridcolor='#e3e1e1')
+			fig.update_yaxes(showgrid=False, gridwidth=0.5, gridcolor='grey')
+			fig.update_traces(marker_line_color='black', marker_line_width=1.5, opacity=0.6)
+			fig.show()
 
 
