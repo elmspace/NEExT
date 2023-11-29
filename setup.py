@@ -29,5 +29,6 @@ setuptools.setup(
 	"karateclub==1.2.2",
 	"umap-learn==0.5.4",
 	"jupyter==1.0.0",
-	"plotly==5.18.0"]
+	"plotly==5.18.0",
+	"xgboost==2.0.2"]
 )

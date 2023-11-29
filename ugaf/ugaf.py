@@ -31,7 +31,6 @@ class UGAF:
 		self.feat_eng = Feature_Engine()
 		self.ml_model = ML_Models()
 		self.g_emb = Graph_Embedding_Engine()
-		self.emb_cols = []
 		self.graph_embedding = {}
 		self.similarity_matrix_stats = {}
 
@@ -160,16 +159,40 @@ class UGAF:
 		self.graph_embedding["graph_embedding_df"] = graph_embedding_df
 
 
-	def visualize_graph_embedding(self, color_by_label=False):
+	def build_model(self, model_type):
+		data_obj = self.format_data_for_classification()
+		self.ml_model.build_model(data_obj, model_type)
+
+
+	def format_data_for_classification(self):
+		graph_emb = self.graph_embedding["graph_embedding_df"]
+		data = self.graph_c.grpah_labels_df.merge(graph_emb, on="graph_id")
+		x_cols = []
+		for col in data.columns.tolist():
+			if "emb" in col:
+				x_cols.append(col)
+		data_obj = {}
+		data_obj["data"] = data
+		data_obj["x_cols"] = x_cols
+		data_obj["y_col"] = "graph_label"
+		return data_obj
+
+
+	def visualize_graph_embedding(self, color_by="nothing"):
 		"""
 			This method uses the the graph embedding and UMAP to
 			visulize the embeddings in two dimensions. It can also color the
 			points if there are labels available for the graph.
 		"""
-		if color_by_label:
+		if color_by == "graph_label":
 			data = self.graph_embedding["graph_embedding_df"].merge(self.graph_c.grpah_labels_df, on="graph_id", how="inner")
-		else:
+		elif color_by == "similarity_matrix_mean":
+			data = self.graph_embedding["graph_embedding_df"].merge(self.similarity_matrix_stats["data"], on="graph_id", how="inner")
+		elif color_by == "nothing":
 			data = self.graph_embedding["graph_embedding_df"].copy(deep=True)
+		else:
+			raise ValueError("Selected coloring is not supported.")
+			
 		# Identify embedding colomns
 		emb_cols = []
 		for col in data.columns.tolist():
@@ -181,10 +204,15 @@ class UGAF:
 		data["x"] = redu_emb[:,0]
 		data["y"] = redu_emb[:,1]
 		# Generate plotly figures
-		if color_by_label:
-			fig = px.scatter(data, x="x", y="y", color="graph_label", size=[4]*len(data))
-		else:
+		if color_by == "graph_label":
+			fig = px.scatter(data, x="x", y="y", color="graph_label", size=[4]*len(data))		
+		elif color_by == "similarity_matrix_mean":
+			fig = px.scatter(data, x="x", y="y", color="similarity_matrix_mean", size=[4]*len(data))
+		elif color_by == "nothing":
 			fig = px.scatter(data, x="x", y="y", size=[4]*len(data))
+		else:
+			raise ValueError("Selected coloring is not supported.")
+
 		# Update figure layout
 		fig.update_layout(paper_bgcolor='white')
 		fig.update_layout(plot_bgcolor='white')
@@ -222,12 +250,11 @@ class UGAF:
 			bordercolor="Black",
 			borderwidth=1
 		))
+		fig.update_traces({'orientation':'h'})
 		fig.update_xaxes(showgrid=False, gridwidth=0.5, gridcolor='#e3e1e1')
 		fig.update_yaxes(showgrid=False, gridwidth=0.5, gridcolor='grey')
 		fig.update_traces(marker_line_color='black', marker_line_width=1.5, opacity=0.6)
 		fig.show()
-
-
 
 
 	def visualize_similarity_matrix_stats(self, color_by_label=False):

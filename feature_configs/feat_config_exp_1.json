@@ -8,21 +8,11 @@
 		{
 			"feature_name" : "basic_expansion",
 			"type" : "basic_expansion",
-			"emb_dim" : 16
-		},
-		{
-			"feature_name" : "structural_node_feature",
-			"type" : "page_rank",
-			"emb_dim" : 16
-		},
-		{
-			"feature_name" : "structural_node_feature",
-			"type" : "degree_centrality",
-			"emb_dim" : 16
+			"emb_dim" : 6
 		}
 	],
 	"gloabl_embedding" : {
 		"type" : "concat",
-		"emb_features" : ["basic_expansion", "page_rank", "degree_centrality"]
+		"emb_features" : ["basic_expansion"]
 	}
 }
