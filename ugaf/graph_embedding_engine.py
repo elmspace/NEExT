@@ -1,6 +1,8 @@
 """
 	Author: Ash Dehghan
 """
+
+# External Libraries
 import scipy
 import random
 import vectorizers
@@ -9,12 +11,14 @@ import pandas as pd
 import networkx as nx
 from tqdm import tqdm
 
+# Internal Modules
+from ugaf.global_config import Global_Config
 
 class Graph_Embedding_Engine:
 
 
 	def __init__(self):
-		pass
+		self.gloabl_config = Global_Config.instance()
 
 
 	def build_graph_embedding(self, graph_embedding_type, graph_c):

@@ -1,18 +1,35 @@
 {
 	"config_name" : "example_1",
-	"graph_sample" : {
-		"flag" : "no",
-		"sample_fraction" : 0.1
+	"data_files" : {
+		"edge_csv_path" : "/Users/ash/Desktop/share/data/ugaf_experiments/abcd/xi/edge_file.csv",
+		"node_graph_map_csv_path" : "/Users/ash/Desktop/share/data/ugaf_experiments/abcd/xi/node_graph_mapping_file.csv",
+		"graph_label_ma_csv_path" : "/Users/ash/Desktop/share/data/ugaf_experiments/abcd/xi/graph_label_mapping_file.csv",
 	},
-	"features" : [
-		{
-			"feature_name" : "basic_expansion",
-			"type" : "basic_expansion",
-			"emb_dim" : 6
+	"experiment_config" :  {
+
+	},
+	"graph_sample" : {
+			"flag" : "no",
+			"sample_fraction" : 0.1
+	},
+	"graph_features" : {
+		"features" : [
+			{
+				"feature_name" : "basic_expansion",
+				"type" : "basic_expansion",
+				"emb_dim" : 6
+			}
+		],
+		"gloabl_embedding" : {
+			"type" : "concat",
+			"emb_features" : ["basic_expansion"]
 		}
-	],
-	"gloabl_embedding" : {
-		"type" : "concat",
-		"emb_features" : ["basic_expansion"]
+	},
+	"graph_embedding" : {
+		"embedding_type" : "wasserstein",
+		"dim_reduction" : {
+			"flag" : "no",
+			"emb_dim" : 8
+		}
 	}
 }

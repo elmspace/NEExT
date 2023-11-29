@@ -3,6 +3,7 @@
 	Description: 
 """
 
+# External Libraries
 import xgboost
 from sklearn.metrics import f1_score
 from sklearn.metrics import recall_score
@@ -13,12 +14,14 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
+# Internal Modules
+from ugaf.global_config import Global_Config
 
 class ML_Models:
 
 
 	def __init__(self):
-		pass
+		self.gloabl_config = Global_Config.instance()
 
 
 	def build_model(self, data_obj, model_type):

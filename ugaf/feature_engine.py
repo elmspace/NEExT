@@ -16,6 +16,7 @@ from tqdm import tqdm
 from sklearn.decomposition import PCA
 
 # Internal Libraries
+from ugaf.global_config import Global_Config
 from ugaf.helper_functions import get_nodes_x_hops_away
 from ugaf.node_embedding_engine import Node_Embedding_Engine
 
@@ -24,6 +25,7 @@ class Feature_Engine:
 
 
 	def __init__(self):
+		self.gloabl_config = Global_Config.instance()
 		self.node_emb_engine = Node_Embedding_Engine()
 		self.feature_functions = {}
 		self.feature_functions["lsme"] = self.build_lsme

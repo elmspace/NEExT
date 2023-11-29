@@ -2,6 +2,7 @@
 	Author : Ash Dehghan
 """
 
+# External Libraries
 import umap
 import scipy
 import vectorizers
@@ -18,6 +19,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 # Internal Modules
 from ugaf.ml_models import ML_Models
+from ugaf.global_config import Global_Config
 from ugaf.feature_engine import Feature_Engine
 from ugaf.graph_collection import Graph_Collection
 from ugaf.graph_embedding_engine import Graph_Embedding_Engine
@@ -27,6 +29,7 @@ class UGAF:
 
 
 	def __init__(self):
+		self.gloabl_config = Global_Config.instance()
 		self.graph_c = Graph_Collection()
 		self.feat_eng = Feature_Engine()
 		self.ml_model = ML_Models()

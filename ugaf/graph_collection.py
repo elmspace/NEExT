@@ -5,15 +5,19 @@
 	for graph analysis.
 """
 
-
+# External Libraries
 import numpy as np
 import pandas as pd
 import networkx as nx
 from tqdm import tqdm
 
+# Internal Modules
+from ugaf.global_config import Global_Config
+
 class Graph_Collection:
 
 	def __init__(self):
+		self.gloabl_config = Global_Config.instance()
 		self.graph_collection = []
 		self.total_numb_of_nodes = None
 		self.graph_id_node_array = None
