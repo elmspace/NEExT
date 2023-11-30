@@ -11,6 +11,7 @@ from sklearn.metrics import recall_score
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import precision_score
 from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_error
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
@@ -42,8 +43,9 @@ class ML_Models:
 		result["mse"] = []
 		for i in tqdm(range(sample_size), desc="Building models:", disable=self.global_config.quiet_mode):
 			data_obj = self.format_data(data_obj)
-			mse = self.build_xgboost_regression(data_obj)
+			mse, mae = self.build_xgboost_regression(data_obj)
 			result["mse"].append(mse)
+			result["mae"].append(mae)
 		return result
 
 
@@ -53,7 +55,8 @@ class ML_Models:
 		y_pred = model.predict(data_obj["X_test"]).flatten()
 		y_true = data_obj["y_test"]
 		mse = mean_squared_error(y_true, y_pred)
-		return mse
+		mae = mean_absolute_error(y_true, y_pred)
+		return mse, mae
 
 
 	def format_data(self, data_obj):
