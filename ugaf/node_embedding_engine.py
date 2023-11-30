@@ -20,7 +20,7 @@ class Node_Embedding_Engine:
 
 
 	def __init__(self):
-		self.gloabl_config = Global_Config.instance()
+		self.global_config = Global_Config.instance()
 
 
 	def run_node2vec_embedding(self, G, emb_dim):

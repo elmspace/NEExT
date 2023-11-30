@@ -17,7 +17,7 @@ from ugaf.global_config import Global_Config
 class Graph_Collection:
 
 	def __init__(self):
-		self.gloabl_config = Global_Config.instance()
+		self.global_config = Global_Config.instance()
 		self.graph_collection = []
 		self.total_numb_of_nodes = None
 		self.graph_id_node_array = None
@@ -32,8 +32,8 @@ class Graph_Collection:
 			of graphs object.
 		"""
 
-		edge_csv_path = self.gloabl_config.config["data_files"]["edge_csv_path"]
-		node_graph_map_csv_path = self.gloabl_config.config["data_files"]["node_graph_map_csv_path"]
+		edge_csv_path = self.global_config.config["data_files"]["edge_csv_path"]
+		node_graph_map_csv_path = self.global_config.config["data_files"]["node_graph_map_csv_path"]
 
 		edges = pd.read_csv(edge_csv_path)
 		src_nodes = [int(i) for i in edges["node_a"].tolist()]
@@ -115,11 +115,12 @@ class Graph_Collection:
 		return stat_obj
 
 
-	def assign_graph_labels(self, graph_label_csv_path):
+	def assign_graph_labels(self):
 		"""
 			This function will take as input graph label csv path.
 			It will load the labels and assigns it to graphs in the collection.
 		"""
+		graph_label_csv_path = self.global_config.config["data_files"]["graph_label_map_csv_path"]
 		graph_labels = pd.read_csv(graph_label_csv_path)
 		self.grpah_labels_df = graph_labels.copy(deep=True)
 		self.graph_label_list_unique = graph_labels["graph_label"].unique().tolist()

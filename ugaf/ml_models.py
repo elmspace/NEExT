@@ -21,7 +21,7 @@ class ML_Models:
 
 
 	def __init__(self):
-		self.gloabl_config = Global_Config.instance()
+		self.global_config = Global_Config.instance()
 
 
 	def build_model(self, data_obj, model_type):

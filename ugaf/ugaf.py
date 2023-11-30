@@ -28,8 +28,10 @@ from ugaf.graph_embedding_engine import Graph_Embedding_Engine
 class UGAF:
 
 
-	def __init__(self):
-		self.gloabl_config = Global_Config.instance()
+	def __init__(self, config_file):
+		self.global_config = Global_Config.instance()
+		self.global_config.load_config(config_file)
+
 		self.graph_c = Graph_Collection()
 		self.feat_eng = Feature_Engine()
 		self.ml_model = ML_Models()
@@ -44,21 +46,21 @@ class UGAF:
 			which handels a set of graphs.
 		"""
 		self.graph_c.load_graphs()
-		if self.gloabl_config.config["filter_for_largest_cc"] == "yes":
+		if self.global_config.config["graph_collection"]["filter_for_largest_cc"] == "yes":
 			self.graph_c.filter_collection_for_largest_connected_component()
-		if self.gloabl_config.config["reset_node_indices"] == "yes":
+		if self.global_config.config["graph_collection"]["reset_node_indices"] == "yes":
 			self.graph_c.reset_node_indices()
 
 
-	def add_graph_labels(self, graph_label_csv_path):
+	def add_graph_labels(self):
 		"""
 			This function takes as input a csv file for graph labels and uses the pre-built
 			graph collection object, to assign labels to graphs.
 		"""
-		self.graph_c.assign_graph_labels(graph_label_csv_path)
+		self.graph_c.assign_graph_labels()
 		
 
-	def extract_graph_features(self, feature_config):
+	def extract_graph_features(self):
 		"""
 			This method will use the Feature Engine object to build features
 			on the graph, which can then be used to compute graph embeddings
@@ -67,7 +69,7 @@ class UGAF:
 		for g_obj in tqdm(self.graph_c.graph_collection, desc="Building features"):
 			G = g_obj["graph"]
 			graph_id = g_obj["graph_id"]
-			g_obj["graph_features"] = self.feat_eng.build_features(G, graph_id, feature_config)
+			g_obj["graph_features"] = self.feat_eng.build_features(G, graph_id)
 		self.standardize_graph_features_globaly()
 
 
@@ -151,12 +153,12 @@ class UGAF:
 		self.similarity_matrix_stats["metrics_pretty_name"] = ["Largest EigenValue", "Similarity Matrix Mean"]
 
 
-	def build_graph_embedding(self, graph_embedding_type):
+	def build_graph_embedding(self):
 		"""
 			This method uses the Graph Embedding Engine object to 
 			build a graph embedding for every graph in the graph collection.
 		"""
-		graph_embedding, graph_embedding_df = self.g_emb.build_graph_embedding(graph_embedding_type, graph_c = self.graph_c)
+		graph_embedding, graph_embedding_df = self.g_emb.build_graph_embedding(graph_c = self.graph_c)
 		self.graph_embedding = {}
 		self.graph_embedding["graph_embedding"] = graph_embedding
 		self.graph_embedding["graph_embedding_df"] = graph_embedding_df

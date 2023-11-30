@@ -18,10 +18,12 @@ class Graph_Embedding_Engine:
 
 
 	def __init__(self):
-		self.gloabl_config = Global_Config.instance()
+		self.global_config = Global_Config.instance()
 
 
-	def build_graph_embedding(self, graph_embedding_type, graph_c):
+	def build_graph_embedding(self, graph_c):
+
+		graph_embedding_type = self.global_config.config["graph_embedding"]["embedding_type"]
 
 		if graph_embedding_type == "wasserstein":
 			graphs_embed, graph_embedding_df = self.build_wasserstein_graph_embedding(graph_c)

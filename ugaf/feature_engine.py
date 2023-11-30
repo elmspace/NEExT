@@ -25,7 +25,7 @@ class Feature_Engine:
 
 
 	def __init__(self):
-		self.gloabl_config = Global_Config.instance()
+		self.global_config = Global_Config.instance()
 		self.node_emb_engine = Node_Embedding_Engine()
 		self.feature_functions = {}
 		self.feature_functions["lsme"] = self.build_lsme
@@ -34,14 +34,8 @@ class Feature_Engine:
 		self.supported_structural_node_features = ["page_rank", "degree_centrality", "closeness_centrality", "load_centrality", "eigenvector_centrality"]
 
 
-	def load_config(self, config_file_path):
-		with open(config_file_path) as config_file:
-			config = dict(json.load(config_file))
-		return config
-
-
-	def build_features(self, G, graph_id, config_file_path):
-		config = self.load_config(config_file_path)
+	def build_features(self, G, graph_id):
+		config = self.global_config.config["graph_features"]
 		node_samples = self.sample_graph(G, config)
 		feature_collection = {}
 		feature_collection["features"] = {}
@@ -56,7 +50,7 @@ class Feature_Engine:
 			This method will sample the graph based on the information
 			given in the configuration.
 		"""
-		if config["graph_sample"]["flag"] == "no":
+		if self.global_config.config["graph_sample"]["flag"] == "no":
 			node_samples = list(G.nodes)
 		else:
 			sample_size = int(len(G.nodes) * config["graph_sample"]["sample_fraction"])
