@@ -28,10 +28,14 @@ from ugaf.graph_embedding_engine import Graph_Embedding_Engine
 class UGAF:
 
 
-	def __init__(self, config_file):
+	def __init__(self, config, config_type="file"):
 		self.global_config = Global_Config.instance()
-		self.global_config.load_config(config_file)
-
+		if config_type == "file":
+			self.global_config.load_config(config)
+		elif config_type == "object":
+			self.global_config.config = config
+		else:
+			raise ValueError("Wrong config type.")
 		self.graph_c = Graph_Collection()
 		self.feat_eng = Feature_Engine()
 		self.ml_model = ML_Models()
@@ -164,9 +168,9 @@ class UGAF:
 		self.graph_embedding["graph_embedding_df"] = graph_embedding_df
 
 
-	def build_model(self, model_type):
+	def build_model(self):
 		data_obj = self.format_data_for_classification()
-		self.ml_model.build_model(data_obj, model_type)
+		self.ml_model_results = self.ml_model.build_model(data_obj)
 
 
 	def format_data_for_classification(self):

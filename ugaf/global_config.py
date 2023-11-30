@@ -20,6 +20,5 @@ class Global_Config:
 			This method will simply load the global configuration
 			file.
 		"""
-		print(config_file_path)
 		with open(config_file_path, "r") as config_file:
 			self.config = dict(json.load(config_file))

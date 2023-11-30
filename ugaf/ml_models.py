@@ -5,6 +5,7 @@
 
 # External Libraries
 import xgboost
+from tqdm import tqdm
 from sklearn.metrics import f1_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import accuracy_score
@@ -24,22 +25,26 @@ class ML_Models:
 		self.global_config = Global_Config.instance()
 
 
-	def build_model(self, data_obj, model_type):
-		
+	def build_model(self, data_obj):
+		model_type = self.global_config.config["machine_learning_modelling"]["type"]
 		if model_type == "regression":
 			model_result = self.run_regression_models(data_obj)
 		elif model_type == "classification":
 			pass
 		else:
 			raise ValueError("Model type not supported.")
+		return model_result
 
 
 	def run_regression_models(self, data_obj):
-
-		for i in range(10):
+		sample_size = self.global_config.config["machine_learning_modelling"]["sample_size"]
+		result = {}
+		result["mse"] = []
+		for i in tqdm(range(sample_size), desc="Building models:"):
 			data_obj = self.format_data(data_obj)
 			mse = self.build_xgboost_regression(data_obj)
-			print(mse)
+			result["mse"].append(mse)
+		return result
 
 
 	def build_xgboost_regression(self, data_obj):
@@ -49,8 +54,6 @@ class ML_Models:
 		y_true = data_obj["y_test"]
 		mse = mean_squared_error(y_true, y_pred)
 		return mse
-
-
 
 
 	def format_data(self, data_obj):

@@ -14,6 +14,7 @@ from tqdm import tqdm
 # Internal Modules
 from ugaf.global_config import Global_Config
 
+
 class Graph_Collection:
 
 	def __init__(self):

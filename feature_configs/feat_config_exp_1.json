@@ -9,9 +9,6 @@
 		"filter_for_largest_cc" : "yes",
 		"reset_node_indices" : "yes"
 	},
-	"experiment_config" :  {
-		"name" : "name"
-	},
 	"graph_sample" : {
 			"flag" : "no",
 			"sample_fraction" : 0.1
@@ -35,5 +32,9 @@
 			"flag" : "no",
 			"emb_dim" : 8
 		}
+	},
+	"machine_learning_modelling" : {
+		"type" : "regression",
+		"sample_size" : 10
 	}
 }
