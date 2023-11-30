@@ -41,6 +41,7 @@ class ML_Models:
 		sample_size = self.global_config.config["machine_learning_modelling"]["sample_size"]
 		result = {}
 		result["mse"] = []
+		result["mae"] = []
 		for i in tqdm(range(sample_size), desc="Building models:", disable=self.global_config.quiet_mode):
 			data_obj = self.format_data(data_obj)
 			mse, mae = self.build_xgboost_regression(data_obj)
