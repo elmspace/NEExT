@@ -26,11 +26,15 @@ class Graph_Collection:
 		self.global_embeddings_cols = None
 		self.global_embeddings = None
 
-	def load_graphs(self, edge_csv_path, node_graph_map_csv_path):
+	def load_graphs(self):
 		"""
 			This method uses the user configuration to build a collection
 			of graphs object.
 		"""
+
+		edge_csv_path = self.gloabl_config.config["data_files"]["edge_csv_path"]
+		node_graph_map_csv_path = self.gloabl_config.config["data_files"]["node_graph_map_csv_path"]
+
 		edges = pd.read_csv(edge_csv_path)
 		src_nodes = [int(i) for i in edges["node_a"].tolist()]
 		dst_nodes = [int(i) for i in edges["node_b"].tolist()]

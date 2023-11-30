@@ -12,7 +12,7 @@ from ugaf.singleton_template import Singleton
 class Global_Config:
 
 	def __init__(self):
-		self.global_config = None
+		self.config = None
 
 
 	def load_config(self, config_file_path):
@@ -21,4 +21,4 @@ class Global_Config:
 			file.
 		"""
 		with open(config_file_path) as config_file:
-			self.global_config = dict(json.load(config_file))
+			self.config = dict(json.load(config_file))

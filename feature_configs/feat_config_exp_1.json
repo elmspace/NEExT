@@ -5,6 +5,10 @@
 		"node_graph_map_csv_path" : "/Users/ash/Desktop/share/data/ugaf_experiments/abcd/xi/node_graph_mapping_file.csv",
 		"graph_label_ma_csv_path" : "/Users/ash/Desktop/share/data/ugaf_experiments/abcd/xi/graph_label_mapping_file.csv",
 	},
+	"graph_collection" : {
+		"filter_for_largest_cc" : "yes",
+		"reset_node_indices" : "yes"
+	},
 	"experiment_config" :  {
 
 	},

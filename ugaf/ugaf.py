@@ -38,15 +38,15 @@ class UGAF:
 		self.similarity_matrix_stats = {}
 
 
-	def build_graph_collection(self, edge_csv_path, node_graph_map_csv_path, filter_for_largest_cc=True, reset_node_indices=True):
+	def build_graph_collection(self):
 		"""
 			This method uses the Graph Collection class to build an object
 			which handels a set of graphs.
 		"""
-		self.graph_c.load_graphs(edge_csv_path, node_graph_map_csv_path)
-		if filter_for_largest_cc:
+		self.graph_c.load_graphs()
+		if self.gloabl_config.config["filter_for_largest_cc"] == "yes":
 			self.graph_c.filter_collection_for_largest_connected_component()
-		if reset_node_indices:
+		if self.gloabl_config.config["reset_node_indices"] == "yes":
 			self.graph_c.reset_node_indices()
 
 
