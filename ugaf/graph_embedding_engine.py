@@ -9,7 +9,6 @@ import vectorizers
 import numpy as np
 import pandas as pd
 import networkx as nx
-from tqdm import tqdm
 
 # Internal Modules
 from ugaf.global_config import Global_Config

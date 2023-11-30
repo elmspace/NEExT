@@ -13,12 +13,25 @@ class Global_Config:
 
 	def __init__(self):
 		self.config = None
+		self.quiet_mode = True
 
 
-	def load_config(self, config_file_path):
+	def load_config(self, config, config_type):
 		"""
 			This method will simply load the global configuration
 			file.
 		"""
-		with open(config_file_path, "r") as config_file:
-			self.config = dict(json.load(config_file))
+		if config_type == "file":
+			with open(config, "r") as config_file:
+				self.config = dict(json.load(config_file))
+		elif config_type == "object":
+			self.config = config
+		else:
+			raise ValueError("Selected config type is not supported.")
+		# Set verbose setting
+		if self.config["quiet_mode"] == "yes":
+			self.quiet_mode = True
+		else:
+			self.quiet_mode = False
+
+

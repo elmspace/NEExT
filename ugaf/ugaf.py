@@ -30,12 +30,7 @@ class UGAF:
 
 	def __init__(self, config, config_type="file"):
 		self.global_config = Global_Config.instance()
-		if config_type == "file":
-			self.global_config.load_config(config)
-		elif config_type == "object":
-			self.global_config.config = config
-		else:
-			raise ValueError("Wrong config type.")
+		self.global_config.load_config(config, config_type)
 		self.graph_c = Graph_Collection()
 		self.feat_eng = Feature_Engine()
 		self.ml_model = ML_Models()
@@ -71,7 +66,7 @@ class UGAF:
 			on the graph, which can then be used to compute graph embeddings
 			and other statistics on the graph.
 		"""
-		for g_obj in tqdm(self.graph_c.graph_collection, desc="Building features"):
+		for g_obj in tqdm(self.graph_c.graph_collection, desc="Building features", disable=self.global_config.quiet_mode):
 			G = g_obj["graph"]
 			graph_id = g_obj["graph_id"]
 			g_obj["graph_features"] = self.feat_eng.build_features(G, graph_id)
@@ -83,7 +78,7 @@ class UGAF:
 			This method will standardize the graph features across all graphs.
 		"""
 		all_graph_feats = pd.DataFrame()
-		for g_obj in tqdm(self.graph_c.graph_collection, desc="Building features"):
+		for g_obj in tqdm(self.graph_c.graph_collection, desc="Building features", disable=self.global_config.quiet_mode):
 			df = g_obj["graph_features"]["global_embedding"]
 			if all_graph_feats.empty:
 				all_graph_feats = df.copy(deep=True)
@@ -109,7 +104,7 @@ class UGAF:
 		self.graph_c.global_embeddings = emb_df.copy(deep=True)
 		self.graph_c.global_embeddings_cols = emb_cols
 		# Re-assign global embeddings to each graph
-		for g_obj in tqdm(self.graph_c.graph_collection, desc="Updating features"):
+		for g_obj in tqdm(self.graph_c.graph_collection, desc="Updating features", disable=self.global_config.quiet_mode):
 			df = emb_df[emb_df["graph_id"] == g_obj["graph_id"]].copy(deep=True)
 			g_obj["graph_features"]["global_embedding"] = df
 
@@ -120,7 +115,7 @@ class UGAF:
 			similarity matrices on those features per graph.
 		"""
 		res_df = pd.DataFrame()
-		for g_obj in tqdm(self.graph_c.graph_collection, desc="Computing similarity stats"):
+		for g_obj in tqdm(self.graph_c.graph_collection, desc="Computing similarity stats", disable=self.global_config.quiet_mode):
 			feature_list = []
 			eigen_val_list = []
 			sim_mean_list = []			

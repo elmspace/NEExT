@@ -12,7 +12,6 @@ import random
 import numpy as np
 import pandas as pd
 import networkx as nx
-from tqdm import tqdm
 from sklearn.decomposition import PCA
 
 # Internal Libraries

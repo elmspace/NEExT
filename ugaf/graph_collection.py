@@ -47,7 +47,7 @@ class Graph_Collection:
 		graph_ids = node_graph_map["graph_id"].unique().tolist()
 		self.total_numb_of_nodes = 0
 		self.graph_id_node_array = []
-		for graph_id in tqdm(graph_ids, desc="Building subgraphs:"):
+		for graph_id in tqdm(graph_ids, desc="Building subgraphs:", disable=self.global_config.quiet_mode):
 			node_list = node_graph_map[node_graph_map["graph_id"] == graph_id]["node_id"].tolist()
 			g = nx.Graph(G.subgraph(node_list))
 			cc = list(nx.connected_components(g))
@@ -71,7 +71,7 @@ class Graph_Collection:
 		"""
 		self.total_numb_of_nodes = 0
 		self.graph_id_node_array = []
-		for g_obj in tqdm(self.graph_collection, desc="Filtering graphs:"):
+		for g_obj in tqdm(self.graph_collection, desc="Filtering graphs:", disable=self.global_config.quiet_mode):
 			largest_cc = list(g_obj["connected_components"][0])
 			g = nx.Graph(g_obj["graph"].subgraph(largest_cc))
 			cc = list(nx.connected_components(g))
@@ -89,7 +89,7 @@ class Graph_Collection:
 			This method will reset the node indices to start from 0.
 			It will keep a mapping between old and new node indices.
 		"""
-		for g_obj in tqdm(self.graph_collection, desc="Resrting node indices:"):
+		for g_obj in tqdm(self.graph_collection, desc="Resrting node indices:", disable=self.global_config.quiet_mode):
 			g = g_obj["graph"]
 			mapping = {}
 			current_nodes = list(g.nodes)
@@ -106,7 +106,7 @@ class Graph_Collection:
 		
 		stat_numb_of_nodes = []
 		stat_avg_node_degree = []
-		for g_obj in tqdm(self.graph_collection, desc="Building stats:"):
+		for g_obj in tqdm(self.graph_collection, desc="Building stats:", disable=self.global_config.quiet_mode):
 			g = g_obj["graph"]
 			stat_numb_of_nodes.append(len(g.nodes))
 			stat_avg_node_degree.append(np.mean(np.array(g.degree)[:,1]))
@@ -127,7 +127,7 @@ class Graph_Collection:
 		self.graph_label_list_unique = graph_labels["graph_label"].unique().tolist()
 		graph_labels = graph_labels.set_index("graph_id")["graph_label"].to_dict()
 		no_label_counter = 0
-		for g_obj in tqdm(self.graph_collection, desc="Assigning graph labels:"):
+		for g_obj in tqdm(self.graph_collection, desc="Assigning graph labels:", disable=self.global_config.quiet_mode):
 			graph_id = g_obj["graph_id"]
 			if graph_id in graph_labels:
 				g_obj["graph_label"] = graph_labels[graph_id]
