@@ -65,7 +65,7 @@ class ML_Models:
 		df = df.sample(frac=1).copy(deep=True)
 		X = df[data_obj["x_cols"]]
 		y = df[[data_obj["y_col"]]]
-		X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+		X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 		X_train, X_vald, y_train, y_vald = train_test_split(X_train, y_train, test_size=0.1, random_state=42)
 		# Standardize data
 		scaler = StandardScaler()
