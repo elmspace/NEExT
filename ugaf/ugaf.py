@@ -42,6 +42,7 @@ class UGAF:
 		self.g_emb = Graph_Embedding_Engine()
 		self.graph_embedding = {}
 		self.similarity_matrix_stats = {}
+		self.ml_model_results = None
 
 
 	def build_graph_collection(self):
