@@ -1,6 +1,6 @@
 {
 	"config_name" : "example_1",
-	"quiet_mode" : "yes",
+	"quiet_mode" : "no",
 	"data_files" : {
 		"edge_csv_path" : "/Users/ash/Desktop/share/data/ugaf_experiments/abcd/xi/edge_file.csv",
 		"node_graph_map_csv_path" : "/Users/ash/Desktop/share/data/ugaf_experiments/abcd/xi/node_graph_mapping_file.csv",
@@ -19,7 +19,7 @@
 			{
 				"feature_name" : "basic_expansion",
 				"type" : "basic_expansion",
-				"emb_dim" : 2
+				"emb_dim" : 6
 			}
 		],
 		"gloabl_embedding" : {
