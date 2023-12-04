@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
 	name='ugaf',
-	version='0.2.1',
+	version='0.2.2',
 	author='Ashkan Dehghan',
 	author_email='ash.dehghan@gmail.com',
 	description='Unsupervised Graph Analysis Framework.',

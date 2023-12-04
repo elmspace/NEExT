@@ -84,10 +84,6 @@ class Graph_Collection:
 			self.total_numb_of_nodes += len(g.nodes)
 			self.graph_id_node_array.extend(np.repeat(g_obj["graph_id"], len(g.nodes)))
 
-			print(g_obj["diameter"])
-
-		exit(0)
-
 
 	def reset_node_indices(self):
 		"""

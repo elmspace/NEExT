@@ -5,7 +5,7 @@ from ugaf.ugaf import UGAF
 
 base_config = {
 	"config_name" : "example_1",
-	"quiet_mode" : "no",
+	"quiet_mode" : "yes",
 	"data_files" : {
 		"edge_csv_path" : "/Users/ash/Desktop/share/data/ugaf_experiments/abcd/xi/edge_file.csv",
 		"node_graph_map_csv_path" : "/Users/ash/Desktop/share/data/ugaf_experiments/abcd/xi/node_graph_mapping_file.csv",
@@ -48,17 +48,24 @@ base_config = {
 
 
 
-feat_emb_dim = [2, 4, 6, 8, 10]
+feat_emb_dim = [2, 3, 4, 5, 6, 7, 8]
 
 feat_types = []
-# feat_types.append([{"feature_name" : "basic_expansion", "type" : "basic_expansion", "emb_dim" : 2}])
-
+feat_types.append([{"feature_name" : "basic_expansion", "type" : "basic_expansion", "emb_dim" : 2}])
+feat_types.append([{"feature_name" : "lsme", "type" : "lsme", "emb_dim" : 2}])
+feat_types.append([{"feature_name" : "structural_node_feature", "type" : "page_rank", "emb_dim" : 2}])
+feat_types.append([{"feature_name" : "structural_node_feature", "type" : "page_rank", "emb_dim" : 2}])
+feat_types.append([{"feature_name" : "structural_node_feature", "type" : "degree_centrality", "emb_dim" : 2}])
+feat_types.append([{"feature_name" : "structural_node_feature", "type" : "closeness_centrality", "emb_dim" : 2}])
+feat_types.append([{"feature_name" : "structural_node_feature", "type" : "eigenvector_centrality", "emb_dim" : 2}])
 feat_types.append([{"feature_name" : "basic_expansion", "type" : "basic_expansion", "emb_dim" : 2}, {"feature_name" : "lsme", "type" : "lsme", "emb_dim" : 2}])
+feat_types.append([{"feature_name" : "basic_expansion", "type" : "basic_expansion", "emb_dim" : 2}, {"feature_name" : "lsme", "type" : "lsme", "emb_dim" : 2}, {"feature_name" : "structural_node_feature", "type" : "page_rank", "emb_dim" : 2}])
+
 
 results = pd.DataFrame()
 
-for feat in feat_types:
-    for dim in feat_emb_dim:
+for feat in tqdm(feat_types, desc="Features:"):
+    for dim in tqdm(feat_emb_dim, desc="Dim:"):
 
         ugaf = UGAF(config=base_config, config_type="object")
 
@@ -87,5 +94,5 @@ for feat in feat_types:
         else:
             results = pd.concat([results, df])
         
-        print(results["mae"].mean())
+        print(results)
         exit(0)
