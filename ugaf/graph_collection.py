@@ -78,10 +78,15 @@ class Graph_Collection:
 			g_obj["graph"] = g
 			g_obj["numb_of_nodes"] = len(g.nodes)
 			g_obj["numb_of_edges"] = len(g.edges)
+			g_obj["diameter"] = nx.diameter(g)
 			g_obj["numb_of_connected_components"] = len(cc)
 			g_obj["connected_components"] = sorted(cc, key=len, reverse=True)
 			self.total_numb_of_nodes += len(g.nodes)
 			self.graph_id_node_array.extend(np.repeat(g_obj["graph_id"], len(g.nodes)))
+
+			print(g_obj["diameter"])
+
+		exit(0)
 
 
 	def reset_node_indices(self):
