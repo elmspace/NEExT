@@ -17,18 +17,18 @@
 	"graph_features" : {
 		"features" : [
 			{
-				"feature_name" : "basic_expansion",
-				"type" : "basic_expansion",
-				"emb_dim" : 6
+				"feature_name" : "lsme",
+				"type" : "lsme",
+				"emb_dim" : 2
 			}
 		],
 		"gloabl_embedding" : {
-			"type" : "concat",
-			"emb_features" : ["basic_expansion"]
+			"type" : "concat"
 		}
 	},
 	"graph_embedding" : {
 		"embedding_type" : "wasserstein",
+		"graph_emb_dim" : 8,
 		"dim_reduction" : {
 			"flag" : "no",
 			"emb_dim" : 8

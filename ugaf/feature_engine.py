@@ -64,10 +64,9 @@ class Feature_Engine:
 			This method will use the features built on the graph to construct
 			a global embedding for the nodes of the graph.
 		"""
-		
 		global_emb_df = pd.DataFrame()
 		if config["gloabl_embedding"]["type"] == "concat":
-			for func_name in config["gloabl_embedding"]["emb_features"]:
+			for func_name in feature_collection["features"]:
 				if "embs" in feature_collection["features"][func_name]:
 					embs = feature_collection["features"][func_name]["embs"]
 					if global_emb_df.empty:

@@ -48,6 +48,7 @@ class Graph_Embedding_Engine:
 		graphs_embed = vectorizers.ApproximateWassersteinVectorizer(
 			normalization_power=0.66,
 			random_state=42,
+			n_components=self.global_config.config["graph_embedding"]["graph_emb_dim"]
 		).fit_transform(incidence_matrix.astype(float), vectors=embedding_collection.astype(float))
 		graph_embedding_df = pd.DataFrame(graphs_embed)
 		emb_cols = ["emb_"+str(i) for i in range(graph_embedding_df.shape[1])]
