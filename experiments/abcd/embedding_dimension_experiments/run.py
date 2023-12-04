@@ -41,11 +41,9 @@ base_config = {
 	},
 	"machine_learning_modelling" : {
 		"type" : "regression",
-		"sample_size" : 10
+		"sample_size" : 50
 	}
 }
-
-
 
 
 feat_emb_dim = [2, 3, 4, 5, 6, 7, 8]
@@ -94,5 +92,5 @@ for feat in tqdm(feat_types, desc="Features:"):
         else:
             results = pd.concat([results, df])
         
-        print(results)
-        exit(0)
+
+results.to_csv("./results.csv", index=False)
