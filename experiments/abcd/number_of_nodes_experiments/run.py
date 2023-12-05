@@ -22,8 +22,8 @@ base_config = {
 	"graph_features" : {
 		"features" : [
 			{
-				"feature_name" : "basic_expansion",
-				"type" : "basic_expansion",
+				"feature_name" : "structural_node_feature",
+				"type" : "degree_centrality",
 				"emb_dim" : 4
 			}
 		],
@@ -51,5 +51,5 @@ ugaf.add_graph_labels()
 ugaf.extract_graph_features()
 ugaf.build_graph_embedding()
 
-fig = ugaf.visualize_graph_embedding(color_by="graph_label")
-fig.show()
+fig, data = ugaf.visualize_graph_embedding(color_by="graph_label")
+data.to_csv("./results/results.csv", index=False)
