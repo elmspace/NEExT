@@ -261,7 +261,7 @@ class UGAF:
 		fig.update_xaxes(showgrid=False, gridwidth=0.5, gridcolor='#e3e1e1')
 		fig.update_yaxes(showgrid=False, gridwidth=0.5, gridcolor='grey')
 		fig.update_traces(marker_line_color='black', marker_line_width=1.5, opacity=0.6)
-		return fig
+		return fig, data
 
 
 	def visualize_similarity_matrix_stats(self, color_by_label=False):
@@ -323,6 +323,6 @@ class UGAF:
 			fig.update_xaxes(showgrid=False, gridwidth=0.5, gridcolor='#e3e1e1')
 			fig.update_yaxes(showgrid=False, gridwidth=0.5, gridcolor='grey')
 			fig.update_traces(marker_line_color='black', marker_line_width=1.5, opacity=0.6)
-			return fig
+			return fig, data
 
 

@@ -5,11 +5,11 @@ from ugaf.ugaf import UGAF
 
 base_config = {
 	"config_name" : "example_1",
-	"quiet_mode" : "yes",
+	"quiet_mode" : "no",
 	"data_files" : {
-		"edge_csv_path" : "https://github.com/elmspace/ugaf_experiments_data/blob/main/abcd/xi_n/edge_file.csv",
-		"node_graph_map_csv_path" : "https://github.com/elmspace/ugaf_experiments_data/blob/main/abcd/xi_n/node_graph_mapping_file.csv",
-		"graph_label_map_csv_path" : "https://github.com/elmspace/ugaf_experiments_data/blob/main/abcd/xi_n/graph_label_mapping_file.csv"
+		"edge_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/abcd/xi_n/edge_file.csv",
+		"node_graph_map_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/abcd/xi_n/node_graph_mapping_file.csv",
+		"graph_label_map_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/abcd/xi_n/graph_label_mapping_file.csv"
 	},
 	"graph_collection" : {
 		"filter_for_largest_cc" : "yes",
@@ -22,9 +22,9 @@ base_config = {
 	"graph_features" : {
 		"features" : [
 			{
-				"feature_name" : "lsme",
-				"type" : "lsme",
-				"emb_dim" : 2
+				"feature_name" : "basic_expansion",
+				"type" : "basic_expansion",
+				"emb_dim" : 4
 			}
 		],
 		"gloabl_embedding" : {
@@ -33,7 +33,7 @@ base_config = {
 	},
 	"graph_embedding" : {
 		"embedding_type" : "wasserstein",
-		"graph_emb_dim" : 2,
+		"graph_emb_dim" : 4,
 		"dim_reduction" : {
 			"flag" : "no",
 			"emb_dim" : 8
@@ -50,4 +50,6 @@ ugaf.build_graph_collection()
 ugaf.add_graph_labels()
 ugaf.extract_graph_features()
 ugaf.build_graph_embedding()
-ugaf.build_model()
+
+fig = ugaf.visualize_graph_embedding(color_by="graph_label")
+fig.show()
