@@ -12,7 +12,6 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import precision_score
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_error
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
@@ -31,10 +30,27 @@ class ML_Models:
 		if model_type == "regression":
 			model_result = self.run_regression_models(data_obj)
 		elif model_type == "classification":
-			pass
+			model_result = self.run_classification_models(data_obj)
 		else:
 			raise ValueError("Model type not supported.")
 		return model_result
+
+
+	def run_classification_models(self, data_obj):
+		sample_size = self.global_config.config["machine_learning_modelling"]["sample_size"]
+		result = {}
+		result["accuracy"] = []
+		result["precision"] = []
+		result["recall"] = []
+		result["f1"] = []
+		for i in tqdm(range(sample_size), desc="Building models:", disable=self.global_config.quiet_mode):
+			data_obj = self.format_data(data_obj, format_type="classification")
+			accuracy, precision, recall, f1 = self.build_xgboost_classification(data_obj)
+			result["accuracy"].append(accuracy)
+			result["precision"].append(precision)
+			result["recall"].append(recall)
+			result["f1"].append(f1)
+		return result
 
 
 	def run_regression_models(self, data_obj):
@@ -50,6 +66,18 @@ class ML_Models:
 		return result
 
 
+	def build_xgboost_classification(self, data_obj):
+		model = xgboost.XGBClassifier(n_estimators=1000, max_depth=7, eta=0.1, subsample=0.7, colsample_bytree=0.8)
+		model.fit(data_obj["X_train"], data_obj["y_train"])
+		y_pred = model.predict(data_obj["X_test"]).flatten()
+		y_true = data_obj["y_test"]
+		accuracy = accuracy_score(y_true, y_pred)
+		precision = precision_score(y_true, y_pred, average='micro')
+		recall = recall_score(y_true, y_pred, average='micro')
+		f1 = f1_score(y_true, y_pred, average='micro')
+		return accuracy, precision, recall, f1
+
+
 	def build_xgboost_regression(self, data_obj):
 		model = xgboost.XGBRegressor(n_estimators=1000, max_depth=7, eta=0.1, subsample=0.7, colsample_bytree=0.8)
 		model.fit(data_obj["X_train"], data_obj["y_train"])
@@ -60,13 +88,25 @@ class ML_Models:
 		return mse, mae
 
 
-	def format_data(self, data_obj):
+	def format_data(self, data_obj, format_type="regression"):
 		"""
 			This function will take the raw data object and will create a 
 			normalized train, test and validation sets.
 		"""
 		df = data_obj["data"].copy(deep=True)
 		df = df.sample(frac=1).copy(deep=True)
+		
+		if format_type == "classification":
+			# We need to relabel the classes to fit XGBoost format
+			raw_classes = list(set(df[[data_obj["y_col"]]]["graph_label"]))
+			class_map = {}
+			class_remap = 0
+			for class_val in raw_classes:
+				class_map[class_val] = class_remap
+				class_remap += 1
+
+			df[data_obj["y_col"]] = df[data_obj["y_col"]].apply(lambda x : class_map[x])
+
 		X = df[data_obj["x_cols"]]
 		y = df[[data_obj["y_col"]]]
 		X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
@@ -86,24 +126,4 @@ class ML_Models:
 		return data_obj
 
 
-	def build_decision_tree_classifier(self, data_obj):
-		clf = DecisionTreeClassifier(random_state=0, max_depth=5)
-		clf.fit(data_obj["X_train"], data_obj["y_train"])
-		y_pred = clf.predict(data_obj["X_test"])
-		y_test = data_obj["y_test"]
-		performance_report = self.run_performance(y_test, y_pred)
-		return performance_report
-
-
-	def run_performance(self, y_test, y_pred):
-		accuracy = accuracy_score(y_test, y_pred)
-		precision = precision_score(y_test, y_pred)
-		recall = recall_score(y_test, y_pred)
-		f1 = f1_score(y_test, y_pred, average='macro')
-		performance_report = {}
-		performance_report["accuracy"] = accuracy
-		performance_report["precision"] = precision
-		performance_report["recall"] = recall
-		performance_report["f1"] = f1
-		return performance_report
 
