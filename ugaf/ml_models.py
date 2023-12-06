@@ -30,6 +30,7 @@ class ML_Models:
 		if model_type == "regression":
 			model_result = self.run_regression_models(data_obj)
 		elif model_type == "classification":
+			data_obj = self.format_classes(data_obj)
 			model_result = self.run_classification_models(data_obj)
 		else:
 			raise ValueError("Model type not supported.")
@@ -44,7 +45,7 @@ class ML_Models:
 		result["recall"] = []
 		result["f1"] = []
 		for i in tqdm(range(sample_size), desc="Building models:", disable=self.global_config.quiet_mode):
-			data_obj = self.format_data(data_obj, format_type="classification")
+			data_obj = self.format_data(data_obj)
 			accuracy, precision, recall, f1 = self.build_xgboost_classification(data_obj)
 			result["accuracy"].append(accuracy)
 			result["precision"].append(precision)
@@ -67,14 +68,20 @@ class ML_Models:
 
 
 	def build_xgboost_classification(self, data_obj):
-		model = xgboost.XGBClassifier(n_estimators=1000, max_depth=7, eta=0.1, subsample=0.7, colsample_bytree=0.8)
+		model = xgboost.XGBClassifier()
 		model.fit(data_obj["X_train"], data_obj["y_train"])
 		y_pred = model.predict(data_obj["X_test"]).flatten()
-		y_true = data_obj["y_test"]
+		y_true = data_obj["y_test"].flatten()
 		accuracy = accuracy_score(y_true, y_pred)
 		precision = precision_score(y_true, y_pred, average='micro')
 		recall = recall_score(y_true, y_pred, average='micro')
 		f1 = f1_score(y_true, y_pred, average='micro')
+
+		print(y_true)
+		print(y_pred)
+		print(accuracy)
+		input("...")
+
 		return accuracy, precision, recall, f1
 
 
@@ -88,24 +95,27 @@ class ML_Models:
 		return mse, mae
 
 
-	def format_data(self, data_obj, format_type="regression"):
+	def format_classes(self, data_obj):
+		raw_classes = list(set(data_obj["data"][[data_obj["y_col"]]]["graph_label"]))
+		class_map = {}
+		class_remap = 0
+		for class_val in raw_classes:
+			class_map[class_val] = class_remap
+			class_remap += 1
+		data_obj["data"][data_obj["y_col"]] = data_obj["data"][data_obj["y_col"]].apply(lambda x : class_map[x])
+		return data_obj
+
+
+	def format_data(self, data_obj):
 		"""
 			This function will take the raw data object and will create a 
 			normalized train, test and validation sets.
 		"""
 		df = data_obj["data"].copy(deep=True)
 		df = df.sample(frac=1).copy(deep=True)
-		
-		if format_type == "classification":
-			# We need to relabel the classes to fit XGBoost format
-			raw_classes = list(set(df[[data_obj["y_col"]]]["graph_label"]))
-			class_map = {}
-			class_remap = 0
-			for class_val in raw_classes:
-				class_map[class_val] = class_remap
-				class_remap += 1
 
-			df[data_obj["y_col"]] = df[data_obj["y_col"]].apply(lambda x : class_map[x])
+		print(df)
+		exit(0)
 
 		X = df[data_obj["x_cols"]]
 		y = df[[data_obj["y_col"]]]

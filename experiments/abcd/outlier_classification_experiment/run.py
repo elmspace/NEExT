@@ -7,9 +7,9 @@ base_config = {
 	"config_name" : "example_1",
 	"quiet_mode" : "yes",
 	"data_files" : {
-		"edge_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/abcd/outlier/info/edge_file.csv",
-		"node_graph_map_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/abcd/outlier/info/node_graph_mapping_file.csv",
-		"graph_label_map_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/abcd/outlier/info/graph_label_mapping_file.csv"
+		"edge_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/abcd/outlier_lite/info/edge_file.csv",
+		"node_graph_map_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/abcd/outlier_lite/info/node_graph_mapping_file.csv",
+		"graph_label_map_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/abcd/outlier_lite/info/graph_label_mapping_file.csv"
 	},
 	"graph_collection" : {
 		"filter_for_largest_cc" : "yes",
