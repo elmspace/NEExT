@@ -216,7 +216,7 @@ class UGAF:
 		return data_obj
 
 
-	def visualize_graph_embedding(self, color_by="nothing"):
+	def visualize_graph_embedding(self, color_by="nothing", color_target_type="classes"):
 		"""
 			This method uses the the graph embedding and UMAP to
 			visulize the embeddings in two dimensions. It can also color the
@@ -225,9 +225,13 @@ class UGAF:
 		if color_by == "graph_label":
 			data = self.graph_embedding["graph_embedding_df"].merge(self.graph_c.grpah_labels_df, on="graph_id", how="inner")
 			data.rename(columns={"graph_label":"Graph Label"}, inplace=True)
+			if color_target_type == "classes":
+				data["Graph Label"] = data["Graph Label"].astype(str)
 		elif color_by == "similarity_matrix_mean":
 			data = self.graph_embedding["graph_embedding_df"].merge(self.similarity_matrix_stats["data"], on="graph_id", how="inner")
 			data.rename(columns={"similarity_matrix_mean":"Similarity Matrix Mean"}, inplace=True)
+			if color_target_type == "classes":
+				data["Graph Label"] = data["Graph Label"].astype(str)
 		elif color_by == "nothing":
 			data = self.graph_embedding["graph_embedding_df"].copy(deep=True)
 		else:
