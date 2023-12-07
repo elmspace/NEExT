@@ -26,6 +26,8 @@ class Graph_Collection:
 		self.grpah_labels_df = None
 		self.global_embeddings_cols = None
 		self.global_embeddings = None
+		self.global_embeddings_cols_arc = None
+		self.global_embeddings_arc = None
 
 	def load_graphs(self):
 		"""

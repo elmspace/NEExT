@@ -71,6 +71,37 @@ class UGAF:
 			graph_id = g_obj["graph_id"]
 			g_obj["graph_features"] = self.feat_eng.build_features(G, graph_id)
 		self.standardize_graph_features_globaly()
+		if self.global_config.config["graph_features"]["gloabl_embedding"]["dim_reduction"]["flag"] == "yes":
+			self.apply_dim_reduction()
+
+
+	def apply_dim_reduction(self):
+		"""
+			This method will apply dimensionality reduction to the gloabl feature embeddings.
+			Since many of the processses in UGAF require the use of the global feat embeddings
+			and their embedding columns, this function makes a copy of those to keep for record
+			and will replace the main feat embedding DataFrame and columns with the reduced ones.
+		"""
+		emb_dim = self.global_config.config["graph_features"]["gloabl_embedding"]["dim_reduction"]["emb_dim"]
+		if emb_dim >= len(self.graph_c.global_embeddings_cols):
+			raise ValueError("The number of reduced dimension is >= to actual dimensions.")
+
+		# Make copies
+		self.graph_c.global_embeddings_cols_arc = self.graph_c.global_embeddings_cols[:]
+		self.graph_c.global_embeddings_arc = self.graph_c.global_embeddings.copy(deep=True)
+
+		data = self.graph_c.global_embeddings[self.graph_c.global_embeddings_cols]
+		reducer = umap.UMAP(n_components=emb_dim)
+		data = reducer.fit_transform(data)
+		scaler = StandardScaler()
+		data = pd.DataFrame(scaler.fit_transform(data))
+		data = pd.DataFrame(data)
+		emb_cols = ["emb_"+str(i) for i in range(data.shape[1])]
+		data.columns = emb_cols
+		data.insert(0, "node_id", self.graph_c.global_embeddings["node_id"])
+		data.insert(1, "graph_id", self.graph_c.global_embeddings["graph_id"])
+		self.graph_c.global_embeddings_cols = emb_cols[:]
+		self.graph_c.global_embeddings = data.copy(deep=True)
 
 
 	def standardize_graph_features_globaly(self):
