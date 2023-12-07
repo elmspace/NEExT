@@ -76,12 +76,6 @@ class ML_Models:
 		precision = precision_score(y_true, y_pred, average='micro')
 		recall = recall_score(y_true, y_pred, average='micro')
 		f1 = f1_score(y_true, y_pred, average='micro')
-
-		print(y_true)
-		print(y_pred)
-		print(accuracy)
-		input("...")
-
 		return accuracy, precision, recall, f1
 
 
@@ -113,10 +107,6 @@ class ML_Models:
 		"""
 		df = data_obj["data"].copy(deep=True)
 		df = df.sample(frac=1).copy(deep=True)
-
-		print(df)
-		exit(0)
-
 		X = df[data_obj["x_cols"]]
 		y = df[[data_obj["y_col"]]]
 		X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
