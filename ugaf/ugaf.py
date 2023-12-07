@@ -83,8 +83,8 @@ class UGAF:
 			and will replace the main feat embedding DataFrame and columns with the reduced ones.
 		"""
 		emb_dim = self.global_config.config["graph_features"]["gloabl_embedding"]["dim_reduction"]["emb_dim"]
-		if emb_dim >= len(self.graph_c.global_embeddings_cols):
-			raise ValueError("The number of reduced dimension is >= to actual dimensions.")
+		if emb_dim > len(self.graph_c.global_embeddings_cols):
+			raise ValueError("The number of reduced dimension is > to actual dimensions.")
 
 		# Make copies
 		self.graph_c.global_embeddings_cols_arc = self.graph_c.global_embeddings_cols[:]

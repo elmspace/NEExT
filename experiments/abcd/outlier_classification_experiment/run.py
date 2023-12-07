@@ -28,7 +28,7 @@ base_config = {
 			}
 		],
 		"gloabl_embedding" : {
-			"type" : "concat"
+			"type" : "concat",
 			"dim_reduction" : {
 				"flag" : "yes",
 				"emb_dim" : 4
