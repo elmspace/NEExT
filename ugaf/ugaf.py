@@ -84,7 +84,7 @@ class UGAF:
 		"""
 		emb_dim = self.global_config.config["graph_features"]["gloabl_embedding"]["dim_reduction"]["emb_dim"]
 		if emb_dim >= len(self.graph_c.global_embeddings_cols):
-			if not self.quiet_mode:
+			if not self.global_config.quiet_mode:
 				print("The number of reduced dimension is > to actual dimensions.")
 			return
 

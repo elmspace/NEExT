@@ -5,7 +5,7 @@ from ugaf.ugaf import UGAF
 
 base_config = {
 	"config_name" : "example_1",
-	"quiet_mode" : "yes",
+	"quiet_mode" : "no",
 	"data_files" : {
 		"edge_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/abcd/outlier_lite/info/edge_file.csv",
 		"node_graph_map_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/abcd/outlier_lite/info/node_graph_mapping_file.csv",
