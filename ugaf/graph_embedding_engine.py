@@ -57,10 +57,10 @@ class Graph_Embedding_Engine:
 		return graphs_embed, graph_embedding_df
 
 
-se_vectorizer = vectorizers.SinkhornVectorizer(
-    n_components=160,
-    memory_size="4G",
-    random_state=42,
-)
-se_vectors = se_vectorizer.fit_transform(info_doc_matrix, vectors=word_vectors)
+# se_vectorizer = vectorizers.SinkhornVectorizer(
+#     n_components=160,
+#     memory_size="4G",
+#     random_state=42,
+# )
+# se_vectors = se_vectorizer.fit_transform(info_doc_matrix, vectors=word_vectors)
 
