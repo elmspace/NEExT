@@ -5,6 +5,7 @@
 
 # External Libraries
 import xgboost
+import pandas as pd
 from tqdm import tqdm
 from sklearn.metrics import f1_score
 from sklearn.metrics import recall_score
@@ -105,7 +106,19 @@ class ML_Models:
 			This function will take the raw data object and will create a 
 			normalized train, test and validation sets.
 		"""
-		df = data_obj["data"].copy(deep=True)
+		df = data_obj["data"].copy(deep=True)		
+		if self.global_config.config["machine_learning_modelling"]["balance_data"] == "yes":
+			labels = list(df["graph_label"].unique())
+			ldf = []
+			ldf_size = []
+			for label in labels:
+				tmp_df = df[df["graph_label"] == label]
+				ldf.append(tmp_df.copy(deep=True))
+				ldf_size.append(len(tmp_df))
+			min_size = min(ldf_size)
+			df = pd.DataFrame()
+			for tmp_df in ldf:
+				df = pd.concat([df, tmp_df.sample(frac=1).head(min_size)])
 		df = df.sample(frac=1).copy(deep=True)
 		X = df[data_obj["x_cols"]]
 		y = df[[data_obj["y_col"]]]
