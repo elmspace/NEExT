@@ -9,6 +9,7 @@ import vectorizers
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+import multiprocessing
 import plotly.express as px
 from numpy import linalg as LA
 import matplotlib.pyplot as plt
@@ -21,6 +22,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from ugaf.ml_models import ML_Models
 from ugaf.global_config import Global_Config
 from ugaf.feature_engine import Feature_Engine
+from ugaf.helper_functions import divide_chunks
 from ugaf.graph_collection import Graph_Collection
 from ugaf.graph_embedding_engine import Graph_Embedding_Engine
 
@@ -29,12 +31,14 @@ class UGAF:
 
 
 	def __init__(self, config, config_type="file"):
-		self.global_config = Global_Config.instance()
+		self.global_config = Global_Config()
 		self.global_config.load_config(config, config_type)
-		self.graph_c = Graph_Collection()
-		self.feat_eng = Feature_Engine()
-		self.ml_model = ML_Models()
-		self.g_emb = Graph_Embedding_Engine()
+
+		self.graph_c = Graph_Collection(self.global_config)
+		self.feat_eng = Feature_Engine(self.global_config)
+		self.ml_model = ML_Models(self.global_config)
+		self.g_emb = Graph_Embedding_Engine(self.global_config)
+
 		self.graph_embedding = {}
 		self.similarity_matrix_stats = {}
 		self.ml_model_results = None
@@ -66,13 +70,32 @@ class UGAF:
 			on the graph, which can then be used to compute graph embeddings
 			and other statistics on the graph.
 		"""
-		for g_obj in tqdm(self.graph_c.graph_collection, desc="Building features", disable=self.global_config.quiet_mode):
-			G = g_obj["graph"]
-			graph_id = g_obj["graph_id"]
-			g_obj["graph_features"] = self.feat_eng.build_features(G, graph_id)
+		numb_of_chunks = int(len(self.graph_c.graph_collection)/10)
+		graph_chunks = list(divide_chunks(self.graph_c.graph_collection, numb_of_chunks))
+		processes = []
+		manager = multiprocessing.Manager()
+		return_dict = manager.dict()
+		for i in range(len(graph_chunks)):
+			p = multiprocessing.Process(target = self.run_graph_feature_extraction, args=(i, graph_chunks[i], return_dict))
+			p.start()
+			processes.append(p)
+		for p in processes:
+			p.join()
+		graph_obj_list = []
+		for process_numb in return_dict:
+			graph_obj_list += return_dict[process_numb]
+		self.graph_c.graph_collection = graph_obj_list[:]
 		self.standardize_graph_features_globaly()
 		if self.global_config.config["graph_features"]["gloabl_embedding"]["dim_reduction"]["flag"] == "yes":
 			self.apply_dim_reduction()
+
+
+	def run_graph_feature_extraction(self, process_numb, graph_chunks, return_dict):
+		for g_obj in tqdm(graph_chunks, desc="Building features", disable=self.global_config.quiet_mode):
+			G = g_obj["graph"]
+			graph_id = g_obj["graph_id"]
+			g_obj["graph_features"] = self.feat_eng.build_features(G, graph_id)
+		return_dict[process_numb] = graph_chunks
 
 
 	def apply_dim_reduction(self):

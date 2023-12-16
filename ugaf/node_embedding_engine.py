@@ -13,14 +13,13 @@ from node2vec import Node2Vec
 from karateclub import DeepWalk
 
 # Internal Libraries
-from ugaf.global_config import Global_Config
 from ugaf.helper_functions import get_numb_of_nb_x_hops_away
 
 class Node_Embedding_Engine:
 
 
 	def __init__(self):
-		self.global_config = Global_Config.instance()
+		pass
 
 
 	def run_node2vec_embedding(self, G, emb_dim):

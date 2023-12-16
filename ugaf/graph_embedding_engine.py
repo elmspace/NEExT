@@ -11,13 +11,13 @@ import pandas as pd
 import networkx as nx
 
 # Internal Modules
-from ugaf.global_config import Global_Config
+# from ugaf.global_config import Global_Config
 
 class Graph_Embedding_Engine:
 
 
-	def __init__(self):
-		self.global_config = Global_Config.instance()
+	def __init__(self, global_config):
+		self.global_config = global_config
 
 
 	def build_graph_embedding(self, graph_c):
@@ -42,13 +42,17 @@ class Graph_Embedding_Engine:
 		cols = np.arange(n)
 		incidence_matrix = scipy.sparse.csr_matrix((np.repeat(1.0,n).astype(np.float32), (rows, cols)))
 		embedding_collection = graph_c.global_embeddings[graph_c.global_embeddings_cols].values
+		if self.global_config.config["graph_embedding"]["graph_emb_dim"] == "auto":
+			graph_emb_dim = graph_c.global_embeddings[graph_c.global_embeddings_cols].shape[1]
+		else:
+			graph_emb_dim = self.global_config.config["graph_embedding"]["graph_emb_dim"]
 		graph_ids = graph_c.global_embeddings["graph_id"].unique().tolist()
 		embedding_collection = np.array(embedding_collection, dtype=object)
 		embedding_collection = np.vstack(embedding_collection)
 		graphs_embed = vectorizers.ApproximateWassersteinVectorizer(
 			normalization_power=0.66,
 			random_state=42,
-			n_components=self.global_config.config["graph_embedding"]["graph_emb_dim"]
+			n_components=graph_emb_dim
 		).fit_transform(incidence_matrix.astype(float), vectors=embedding_collection.astype(float))
 		graph_embedding_df = pd.DataFrame(graphs_embed)
 		emb_cols = ["emb_"+str(i) for i in range(graph_embedding_df.shape[1])]

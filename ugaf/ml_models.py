@@ -17,13 +17,13 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
 # Internal Modules
-from ugaf.global_config import Global_Config
+# from ugaf.global_config import Global_Config
 
 class ML_Models:
 
 
-	def __init__(self):
-		self.global_config = Global_Config.instance()
+	def __init__(self, global_config):
+		self.global_config = global_config
 
 
 	def build_model(self, data_obj):
@@ -69,7 +69,7 @@ class ML_Models:
 
 
 	def build_xgboost_classification(self, data_obj):
-		model = xgboost.XGBClassifier()
+		model = xgboost.XGBClassifier(n_estimators=1000, max_depth=5, eta=0.1, subsample=0.7, colsample_bytree=0.8)
 		model.fit(data_obj["X_train"], data_obj["y_train"])
 		y_pred = model.predict(data_obj["X_test"]).flatten()
 		y_true = data_obj["y_test"].flatten()

@@ -12,13 +12,13 @@ import networkx as nx
 from tqdm import tqdm
 
 # Internal Modules
-from ugaf.global_config import Global_Config
+# from ugaf.global_config import Global_Config
 
 
 class Graph_Collection:
 
-	def __init__(self):
-		self.global_config = Global_Config.instance()
+	def __init__(self, global_config):
+		self.global_config = global_config
 		self.graph_collection = []
 		self.total_numb_of_nodes = None
 		self.graph_id_node_array = None
@@ -34,15 +34,24 @@ class Graph_Collection:
 			This method uses the user configuration to build a collection
 			of graphs object.
 		"""
-
 		edge_csv_path = self.global_config.config["data_files"]["edge_csv_path"]
 		node_graph_map_csv_path = self.global_config.config["data_files"]["node_graph_map_csv_path"]
-
 		edges = pd.read_csv(edge_csv_path)
 		src_nodes = [int(i) for i in edges["node_a"].tolist()]
 		dst_nodes = [int(i) for i in edges["node_b"].tolist()]
 		edgelist = list(zip(src_nodes, dst_nodes))
 		G = nx.from_edgelist(edgelist)
+		# Add node features if exists
+		if "node_feature_csv_path" in self.global_config.config["data_files"]:
+			node_feature_csv_path = self.global_config.config["data_files"]["node_feature_csv_path"]
+			node_features = pd.read_csv(node_feature_csv_path)
+			node_features_map = {}
+			for idx in tqdm(range(len(node_features)), desc="Loading node features:", disable=self.global_config.quiet_mode):
+				feats = dict(node_features.iloc[idx])
+				node_id = int(feats["node_id"])
+				del feats["node_id"]
+				node_features_map[node_id] = feats
+			nx.set_node_attributes(G, node_features_map)
 		node_graph_map = pd.read_csv(node_graph_map_csv_path)
 		node_graph_map["node_id"] = node_graph_map["node_id"].astype(int)
 		node_graph_map["graph_id"] = node_graph_map["graph_id"].astype(int)

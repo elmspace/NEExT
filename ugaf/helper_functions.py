@@ -1,6 +1,12 @@
 
 import networkx as nx
 
+
+def divide_chunks(list, chunks): 
+	for i in range(0, len(list), chunks):  
+		yield list[i:i + chunks] 
+
+
 def get_numb_of_nb_x_hops_away(G, node, max_hop_length):
 	"""
 		This method will compute the number of neighbors x hops away from

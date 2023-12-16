@@ -15,7 +15,7 @@ import networkx as nx
 from sklearn.decomposition import PCA
 
 # Internal Libraries
-from ugaf.global_config import Global_Config
+# from ugaf.global_config import Global_Config
 from ugaf.helper_functions import get_nodes_x_hops_away
 from ugaf.node_embedding_engine import Node_Embedding_Engine
 
@@ -23,10 +23,11 @@ from ugaf.node_embedding_engine import Node_Embedding_Engine
 class Feature_Engine:
 
 
-	def __init__(self):
-		self.global_config = Global_Config.instance()
+	def __init__(self, global_config):
+		self.global_config = global_config
 		self.node_emb_engine = Node_Embedding_Engine()
 		self.feature_functions = {}
+		self.feature_functions["basic_node_features"] = self.build_basic_node_features
 		self.feature_functions["lsme"] = self.build_lsme
 		self.feature_functions["basic_expansion"] = self.build_basic_expansion
 		self.feature_functions["structural_node_feature"] = self.build_structural_node_features
@@ -76,6 +77,23 @@ class Feature_Engine:
 			feature_collection["global_embedding"] = global_emb_df
 		else:
 			raise ValueError("Gloabl embedding type is not supported.")
+		return feature_collection
+
+
+	def build_basic_node_features(self, feature_collection, G, config, func_name, node_samples, graph_id):
+		node_feature_list = []
+		emb_cols = None
+		for node in G.nodes:
+			emb_cols = list(G.nodes[node].keys())
+			node_feature_list.append(list(G.nodes[node].values()))
+		embs = pd.DataFrame(node_feature_list)
+		emb_cols = ["emb_"+i for i in emb_cols]
+		embs.columns = emb_cols
+		embs.insert(0, "node_id", list(G.nodes))
+		embs.insert(1, "graph_id", graph_id)
+		feature_collection["features"][func_name] = {}
+		feature_collection["features"][func_name]["embs"] = embs
+		feature_collection["features"][func_name]["embs_cols"] = emb_cols
 		return feature_collection
 
 

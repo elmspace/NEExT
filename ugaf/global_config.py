@@ -5,10 +5,10 @@
 # External libraries
 import json
 
-# Internal libraries
-from ugaf.singleton_template import Singleton
+# # Internal libraries
+# from ugaf.singleton_template import Singleton
 
-@Singleton
+# @Singleton
 class Global_Config:
 
 	def __init__(self):
