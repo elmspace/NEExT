@@ -160,8 +160,10 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-test_req.txt
-test.py
+# tmp_results
+# tmp_results/*
+# test_req.txt
+# test.py
 test.ipynb
 tmp_text.txt
 *.csv
