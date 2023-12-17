@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from ugaf.ugaf import UGAF
 
-dataset_name = "PROTEINS"
+dataset_name = "REDDIT_BINARY"
 
 base_config = {
 	"config_name" : "example_1",
@@ -10,8 +10,8 @@ base_config = {
 	"data_files" : {
 		"edge_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/real_world_graphs/"+dataset_name+"/processed_data/edge_file.csv",
 		"graph_label_map_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/real_world_graphs/"+dataset_name+"/processed_data/graph_label_mapping_file.csv",
-		"node_graph_map_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/real_world_graphs/"+dataset_name+"/processed_data/node_graph_mapping_file.csv",
-		"node_feature_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/real_world_graphs/"+dataset_name+"/processed_data/node_feature_file.csv"
+		"node_graph_map_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/real_world_graphs/"+dataset_name+"/processed_data/node_graph_mapping_file.csv"
+		# "node_feature_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/real_world_graphs/"+dataset_name+"/processed_data/node_feature_file.csv"
 	},
 	"graph_collection" : {
 		"filter_for_largest_cc" : "yes",
