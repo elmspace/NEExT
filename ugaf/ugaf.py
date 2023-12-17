@@ -70,7 +70,7 @@ class UGAF:
 			on the graph, which can then be used to compute graph embeddings
 			and other statistics on the graph.
 		"""
-		numb_of_chunks = int(len(self.graph_c.graph_collection)/5)
+		numb_of_chunks = int(len(self.graph_c.graph_collection)/3)
 		graph_chunks = list(divide_chunks(self.graph_c.graph_collection, numb_of_chunks))
 		processes = []
 		manager = multiprocessing.Manager()
