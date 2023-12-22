@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from ugaf.ugaf import UGAF
 
-dataset_name = "BZR"
+dataset_name = "PROTEINS"
 
 base_config = {
 	"config_name" : "example_1",
@@ -24,41 +24,47 @@ base_config = {
 	"graph_features" : {
 		"features" : [
 			{
+				"feature_name" : "self_walk",
+				"type" : "self_walk",
+				"emb_dim" : 8
+			},
+			{
 				"feature_name" : "lsme",
 				"type" : "lsme",
-				"emb_dim" : 4
+				"emb_dim" : 8
 			},
 			{
 				"feature_name" : "basic_expansion",
 				"type" : "basic_expansion",
-				"emb_dim" : 4
+				"emb_dim" : 8
 			},
 			{
 				"feature_name" : "structural_node_feature",
 				"type" : "degree_centrality",
-				"emb_dim" : 4
+				"emb_dim" : 8
 			},
 			{
 				"feature_name" : "structural_node_feature",
 				"type" : "closeness_centrality",
-				"emb_dim" : 4
+				"emb_dim" : 8
 			},
 			{
 				"feature_name" : "structural_node_feature",
 				"type" : "load_centrality",
-				"emb_dim" : 4
+				"emb_dim" : 8
 			},
 			{
 				"feature_name" : "structural_node_feature",
 				"type" : "eigenvector_centrality",
-				"emb_dim" : 4
+				"emb_dim" : 8
 			}
 		],
 		"gloabl_embedding" : {
 			"type" : "concat",
 			"dim_reduction" : {
-				"flag" : "no",
-				"emb_dim" : 8
+				"flag" : "yes",
+				"reducer_type" : "pca",
+				"emb_dim" : 55
 			}
 		}
 	},

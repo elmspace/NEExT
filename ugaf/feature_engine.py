@@ -6,10 +6,12 @@
 """
 
 # External Libraries
+import copy
 import umap
 import json
 import random
 import numpy as np
+import igraph as ig
 import pandas as pd
 import networkx as nx
 from sklearn.decomposition import PCA
@@ -30,6 +32,7 @@ class Feature_Engine:
 		self.feature_functions["basic_node_features"] = self.build_basic_node_features
 		self.feature_functions["lsme"] = self.build_lsme
 		self.feature_functions["basic_expansion"] = self.build_basic_expansion
+		self.feature_functions["self_walk"] = self.build_self_walk
 		self.feature_functions["structural_node_feature"] = self.build_structural_node_features
 		self.supported_structural_node_features = ["page_rank", "degree_centrality", "closeness_centrality", "load_centrality", "eigenvector_centrality"]
 
@@ -79,6 +82,27 @@ class Feature_Engine:
 			raise ValueError("Gloabl embedding type is not supported.")
 		return feature_collection
 
+
+
+	def build_self_walk(self, feature_collection, G, config, func_name, node_samples, graph_id):
+		iG = ig.Graph.from_networkx(G)
+		A = np.array(iG.get_adjacency().data)
+		emb_dim = config["emb_dim"]
+		Ao = copy.deepcopy(A)
+		embs = {}
+		for i in range(2, emb_dim+2):
+			A = np.linalg.matrix_power(Ao, i)
+			diag_elem = np.diag(A)
+			embs["emb_selfwalk_"+str(i-2)] = list(diag_elem)
+		embs = pd.DataFrame(embs)
+		emb_cols = list(embs.columns)
+		embs.insert(0, "node_id", list(G.nodes))
+		embs.insert(1, "graph_id", graph_id)
+		feature_collection["features"][func_name] = {}
+		feature_collection["features"][func_name]["embs"] = embs
+		feature_collection["features"][func_name]["embs_cols"] = emb_cols
+		return feature_collection
+			
 
 	def build_basic_node_features(self, feature_collection, G, config, func_name, node_samples, graph_id):
 		node_feature_list = []

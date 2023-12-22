@@ -30,5 +30,6 @@ setuptools.setup(
 	"umap-learn==0.5.4",
 	"jupyter==1.0.0",
 	"plotly==5.18.0",
-	"xgboost==2.0.2"]
+	"xgboost==2.0.2",
+	"igraph==0.11.3"]
 )

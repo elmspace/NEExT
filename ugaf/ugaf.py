@@ -70,7 +70,7 @@ class UGAF:
 			on the graph, which can then be used to compute graph embeddings
 			and other statistics on the graph.
 		"""
-		numb_of_chunks = int(len(self.graph_c.graph_collection)/3)
+		numb_of_chunks = int(len(self.graph_c.graph_collection)/5)
 		graph_chunks = list(divide_chunks(self.graph_c.graph_collection, numb_of_chunks))
 		processes = []
 		manager = multiprocessing.Manager()
@@ -106,6 +106,7 @@ class UGAF:
 			and will replace the main feat embedding DataFrame and columns with the reduced ones.
 		"""
 		emb_dim = self.global_config.config["graph_features"]["gloabl_embedding"]["dim_reduction"]["emb_dim"]
+		reducer_type = self.global_config.config["graph_features"]["gloabl_embedding"]["dim_reduction"]["reducer_type"]
 		if emb_dim >= len(self.graph_c.global_embeddings_cols):
 			if not self.global_config.quiet_mode:
 				print("The number of reduced dimension is > to actual dimensions.")
@@ -116,10 +117,19 @@ class UGAF:
 		self.graph_c.global_embeddings_arc = self.graph_c.global_embeddings.copy(deep=True)
 
 		data = self.graph_c.global_embeddings[self.graph_c.global_embeddings_cols]
-		reducer = umap.UMAP(n_components=emb_dim)
-		data = reducer.fit_transform(data)
+
+		if reducer_type == "umap":		
+			reducer = umap.UMAP(n_components=emb_dim)
+			data = reducer.fit_transform(data)
+		elif reducer_type == "pca":
+			reducer = PCA(n_components=emb_dim)
+			data = reducer.fit_transform(data)
+		else:
+			raise ValueError("Wrong reducer selected.")
+
 		scaler = StandardScaler()
-		data = pd.DataFrame(scaler.fit_transform(data))
+		data = scaler.fit_transform(data)
+		
 		data = pd.DataFrame(data)
 		emb_cols = ["emb_"+str(i) for i in range(data.shape[1])]
 		data.columns = emb_cols
