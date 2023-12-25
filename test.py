@@ -10,8 +10,8 @@ base_config = {
 	"data_files" : {
 		"edge_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/real_world_graphs/"+dataset_name+"/processed_data/edge_file.csv",
 		"graph_label_map_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/real_world_graphs/"+dataset_name+"/processed_data/graph_label_mapping_file.csv",
-		"node_graph_map_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/real_world_graphs/"+dataset_name+"/processed_data/node_graph_mapping_file.csv",
-		"node_feature_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/real_world_graphs/"+dataset_name+"/processed_data/node_feature_file.csv"
+		"node_graph_map_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/real_world_graphs/"+dataset_name+"/processed_data/node_graph_mapping_file.csv"
+		# "node_feature_csv_path" : "https://raw.githubusercontent.com/elmspace/ugaf_experiments_data/main/real_world_graphs/"+dataset_name+"/processed_data/node_feature_file.csv"
 	},
 	"graph_collection" : {
 		"filter_for_largest_cc" : "yes",
@@ -62,7 +62,7 @@ base_config = {
 		"gloabl_embedding" : {
 			"type" : "concat",
 			"dim_reduction" : {
-				"flag" : "yes",
+				"flag" : "no",
 				"reducer_type" : "pca",
 				"emb_dim" : 55
 			}
@@ -78,8 +78,8 @@ base_config = {
 	},
 	"machine_learning_modelling" : {
 		"type" : "classification",
-		"sample_size" : 50,
-		"balance_data" : "yes"
+		"sample_size" : 100,
+		"balance_data" : "no"
 	}
 }
 
@@ -98,12 +98,15 @@ if __name__ == '__main__':
 
 	res_df = pd.DataFrame()
 	res_df["Accuracy"] = ugaf.ml_model_results["accuracy"]
+	res_df["Precision"] = ugaf.ml_model_results["precision"]
+	res_df["Recall"] = ugaf.ml_model_results["recall"]
+	res_df["F1-Score"] = ugaf.ml_model_results["f1"]
 	res_df["Dataset"] = dataset_name
 	res_df["Source"] = "NEExT"
 
 	print(res_df["Accuracy"].mean())
 
-	# res_df.to_csv("./tmp_results/"+dataset_name+".csv", index=False)
+	res_df.to_csv("./tmp_results/"+dataset_name+".csv", index=False)
 
 	# fig, data = ugaf.visualize_graph_embedding(color_by="graph_label")
 	# fig.show()

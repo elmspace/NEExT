@@ -74,9 +74,9 @@ class ML_Models:
 		y_pred = model.predict(data_obj["X_test"]).flatten()
 		y_true = data_obj["y_test"].flatten()
 		accuracy = accuracy_score(y_true, y_pred)
-		precision = precision_score(y_true, y_pred, average='micro')
-		recall = recall_score(y_true, y_pred, average='micro')
-		f1 = f1_score(y_true, y_pred, average='micro')
+		precision = precision_score(y_true, y_pred)
+		recall = recall_score(y_true, y_pred)
+		f1 = f1_score(y_true, y_pred)
 		return accuracy, precision, recall, f1
 
 
