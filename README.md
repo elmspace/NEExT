@@ -1,4 +1,4 @@
-# UGAF
+# NEExT
 
 ### Unsupervised Graph Analysis Framework
 UGAF is a frameowork for analysis of a collection for graphs. This includes functionality such as:
